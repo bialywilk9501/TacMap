@@ -998,6 +998,89 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
     min-height: -webkit-fill-available;
   }
 }
+
+/* ── PANIC BUTTON ── */
+#panic-btn{
+  position:fixed;bottom:80px;right:14px;z-index:850;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--red);border:3px solid rgba(255,255,255,.3);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(239,68,68,.6),0 0 0 0 rgba(239,68,68,.4);
+  animation:panicpulse 2s infinite;
+  transition:transform .15s,background .15s;
+  font-size:22px;
+}
+#panic-btn:active{transform:scale(.92)}
+#panic-btn.triggered{background:#7f1d1d;animation:none;box-shadow:0 4px 20px rgba(239,68,68,.8)}
+@keyframes panicpulse{
+  0%{box-shadow:0 4px 20px rgba(239,68,68,.5),0 0 0 0 rgba(239,68,68,.4)}
+  70%{box-shadow:0 4px 20px rgba(239,68,68,.5),0 0 0 16px rgba(239,68,68,0)}
+  100%{box-shadow:0 4px 20px rgba(239,68,68,.5),0 0 0 0 rgba(239,68,68,0)}
+}
+@media(max-width:700px){
+  #panic-btn{bottom:110px;right:10px;width:52px;height:52px;font-size:20px}
+}
+
+/* ── ROUTE PANEL ── */
+#route-panel{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:600;background:var(--s1);border:1px solid var(--b1);
+  border-radius:var(--r2);padding:12px 14px;
+  box-shadow:var(--shadow);width:min(340px,90vw);
+  display:none;
+}
+#route-panel.open{display:block}
+.rp-title{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.rp-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.rp-input{
+  flex:1;padding:8px 10px;border-radius:7px;
+  border:1px solid var(--b1);background:var(--bg);
+  font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--t1);outline:none;
+}
+.rp-input:focus{border-color:var(--acc)}
+.rp-btn{
+  padding:7px 12px;border-radius:7px;border:1px solid var(--b1);
+  background:var(--s2);font-family:'IBM Plex Sans',sans-serif;
+  font-size:11px;font-weight:600;cursor:pointer;color:var(--t1);
+  white-space:nowrap;transition:all .1s;flex-shrink:0;
+}
+.rp-btn:hover{background:var(--s3);border-color:var(--b2)}
+.rp-btn.primary{background:var(--acc);color:#fff;border-color:transparent}
+.rp-btn.primary:hover{opacity:.9}
+.rp-btn.danger{color:var(--red)}.rp-btn.danger:hover{background:var(--red-bg)}
+.rp-info{font-size:11px;color:var(--t2);padding:8px 10px;background:var(--s2);border-radius:6px;margin-top:6px;line-height:1.6;display:none}
+.rp-info.show{display:block}
+.rp-modes{display:flex;gap:4px;margin-bottom:8px}
+.rp-mode{flex:1;padding:6px 4px;border-radius:6px;border:1px solid var(--b1);background:transparent;font-size:10px;font-weight:600;cursor:pointer;color:var(--t2);text-align:center;transition:all .1s}
+.rp-mode.on{background:var(--acc-bg);color:var(--acc);border-color:var(--acc)}
+
+/* ── LOCATION INDICATOR (accuracy ring animation) ── */
+@keyframes locring{
+  0%{opacity:.8;transform:scale(1)}
+  100%{opacity:0;transform:scale(2.5)}
+}
+.loc-ring{
+  position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid var(--green);animation:locring 1.8s ease-out infinite;
+  pointer-events:none;
+}
+
+/* ── PANIC OVERLAY ── */
+#panic-overlay{
+  position:fixed;inset:0;background:rgba(127,29,29,.97);
+  z-index:9990;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;
+  padding:32px;
+}
+#panic-overlay.open{display:flex}
+.panic-sos{font-size:72px;font-weight:900;color:#fff;letter-spacing:8px;
+  animation:sosblink .8s step-end infinite}
+@keyframes sosblink{0%,100%{opacity:1}50%{opacity:.3}}
+.panic-coords{font-family:'IBM Plex Mono',monospace;font-size:14px;color:rgba(255,255,255,.7);text-align:center;line-height:1.8}
+.panic-timer{font-family:'IBM Plex Mono',monospace;font-size:32px;color:#fff;font-weight:700}
+.panic-cancel{padding:14px 32px;border-radius:12px;border:2px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .15s}
+.panic-cancel:hover{background:rgba(255,255,255,.15)}
+.panic-status{font-size:12px;color:rgba(255,255,255,.6);text-align:center;max-width:280px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -1121,6 +1204,10 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <button class="ab-btn" onclick="doLocate()">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
     <span>Lokalizacja</span>
+  </button>
+  <button class="ab-btn" onclick="openRoutePanel()">
+    <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M6 16V9a6 6 0 0 1 6-6"/><path d="M18 8v7a6 6 0 0 1-6 6"/></svg>
+    <span>Trasa</span>
   </button>
   <button class="ab-btn" onclick="toggleChat()">
     <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -1277,6 +1364,44 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <button class="ls-tb" title="Lokalizacja" onclick="doLocate()">🎯</button>
   <button class="ls-tb" title="Znacznik" onclick="openCustomMarkerModal()">🏷</button>
   <button class="ls-tb" title="Czat" onclick="toggleChat()">💬</button>
+</div>
+
+<!-- PANIC BUTTON -->
+<button id="panic-btn" onclick="triggerPanic()" title="SOS / Przycisk alarmowy">🆘</button>
+
+<!-- ROUTE PANEL -->
+<div id="route-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="rp-title">🗺 Wyznacz trasę</div>
+    <button class="rp-btn danger" onclick="clearRoute()" style="padding:3px 8px;font-size:10px">✕ Zamknij</button>
+  </div>
+  <div class="rp-modes">
+    <button class="rp-mode on" data-mode="driving" onclick="selectRouteMode(this,'driving')">🚗 Auto</button>
+    <button class="rp-mode" data-mode="walking" onclick="selectRouteMode(this,'walking')">🚶 Pieszo</button>
+    <button class="rp-mode" data-mode="cycling" onclick="selectRouteMode(this,'cycling')">🚲 Rower</button>
+  </div>
+  <div class="rp-row">
+    <input class="rp-input" id="route-from" placeholder="Skąd (zostaw puste = moja poz.)"/>
+    <button class="rp-btn" onclick="useMyLocation()">📍</button>
+  </div>
+  <div class="rp-row">
+    <input class="rp-input" id="route-to" placeholder="Dokąd — wpisz adres lub kliknij mapę"/>
+    <button class="rp-btn" onclick="pickRoutePoint()">🗺</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-top:4px">
+    <button class="rp-btn primary" onclick="calcRoute()" style="flex:1">Wyznacz trasę</button>
+    <button class="rp-btn" onclick="clearRoute()">Wyczyść</button>
+  </div>
+  <div class="rp-info" id="route-info"></div>
+</div>
+
+<!-- PANIC OVERLAY -->
+<div id="panic-overlay">
+  <div class="panic-sos">SOS</div>
+  <div class="panic-timer" id="panic-timer">0:00</div>
+  <div class="panic-coords" id="panic-coords">Pobieranie lokalizacji...</div>
+  <div class="panic-status" id="panic-status">Wysyłanie alertu do drużyny...</div>
+  <button class="panic-cancel" onclick="cancelPanic()">✕ Anuluj alarm</button>
 </div>
 
 <!-- COMPASS WIDGET -->
@@ -2057,13 +2182,19 @@ function doClear(){drawn.clearLayers();shapes=0;document.getElementById('sshapes
 var locWatchId=null;
 function doLocate(){
   if(!navigator.geolocation){notify('Geolokalizacja niedostępna');return}
+  // Show immediate feedback
+  notify('📡 Pobieranie lokalizacji...');
   notify('Ustalanie pozycji…');
   if(locWatchId!==null){navigator.geolocation.clearWatch(locWatchId)}
   locWatchId=navigator.geolocation.watchPosition(function(p){
     myLat=p.coords.latitude;myLng=p.coords.longitude;
     var acc=Math.round(p.coords.accuracy);
     if(locMark)map.removeLayer(locMark);if(locCircle)map.removeLayer(locCircle);
-    locMark=L.marker([myLat,myLng],{icon:makeOpIcon(profile,compassHeading)}).addTo(map).bindPopup(makeOpPopup(profile,myLat,myLng,acc));
+    locMark=L.marker([myLat,myLng],{icon:makeOpIcon(profile,compassHeading),zIndexOffset:1000}).addTo(map).bindPopup(makeOpPopup(profile,myLat,myLng,acc));
+    // Add pulsing ring marker behind the operator
+    if(window._locRingMark){try{map.removeLayer(window._locRingMark)}catch(e){}}
+    var ringIcon=L.divIcon({className:'',html:'<div class="loc-ring"></div>',iconSize:[20,20],iconAnchor:[10,10]});
+    window._locRingMark=L.marker([myLat,myLng],{icon:ringIcon,zIndexOffset:999,interactive:false}).addTo(map);
     locCircle=L.circle([myLat,myLng],{radius:acc,color:'#6b7280',weight:1,fillColor:'#6b7280',fillOpacity:.06,dashArray:'4 6'}).addTo(map);
     document.getElementById('sloc-wrap').style.display='inline';
     document.getElementById('slocv').textContent=myLat.toFixed(4)+'N '+myLng.toFixed(4)+'E';
@@ -2551,6 +2682,7 @@ function connectToRoom(code){
   document.getElementById('sync-code-display').style.display='inline';
   notify('Dołączono do pokoju '+code);
   listenForVoiceMessages(code);
+  listenForPanic(code);
   startPingDisplay();
 }
 
@@ -4629,6 +4761,284 @@ doLocate = function(){
   _origDoLocate();
   if(!wakeLockActive) requestWakeLock();
 };
+
+/* ════════════════════════════════════════
+   ROUTE PLANNING (OpenRouteService free API)
+   ════════════════════════════════════════ */
+var routeMode = 'driving-car';
+var routeLayer = null;
+var pickingRoutePoint = false;
+var routeMarkers = [];
+
+var ORS_PROFILES = {
+  'driving':'driving-car',
+  'walking':'foot-walking',
+  'cycling':'cycling-regular'
+};
+
+function openRoutePanel(){
+  document.getElementById('route-panel').classList.add('open');
+}
+
+function selectRouteMode(btn, mode){
+  routeMode = ORS_PROFILES[mode] || 'driving-car';
+  document.querySelectorAll('.rp-mode').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+}
+
+function useMyLocation(){
+  if(myLat){
+    document.getElementById('route-from').value = myLat.toFixed(5)+'° N, '+myLng.toFixed(5)+'° E';
+  } else {
+    notify('Najpierw włącz lokalizację');
+  }
+}
+
+function pickRoutePoint(){
+  pickingRoutePoint = true;
+  setMode('Kliknij mapę aby wskazać cel trasy');
+  notify('Kliknij mapę aby wskazać punkt docelowy');
+  map.once('click', function(e){
+    pickingRoutePoint = false;
+    document.getElementById('route-to').value = e.latlng.lat.toFixed(5)+'° N, '+e.latlng.lng.toFixed(5)+'° E';
+    setMode('Nawigacja');
+    notify('Punkt docelowy wybrany');
+  });
+}
+
+function parseCoordStr(str){
+  // Try "lat° N, lng° E" format
+  var m = str.match(/([-\d.]+)[°\s]*[NS]?\s*[,]\s*([-\d.]+)[°\s]*[EW]?/);
+  if(m) return [parseFloat(m[1]), parseFloat(m[2])];
+  return null;
+}
+
+function geocodeAddress(address, callback){
+  // Use Nominatim (OpenStreetMap) free geocoding
+  var url = 'https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(address)+'&limit=1';
+  fetch(url, {headers:{'Accept-Language':'pl'}})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data && data.length>0){
+        callback(null, [parseFloat(data[0].lat), parseFloat(data[0].lon)], data[0].display_name);
+      } else {
+        callback('Nie znaleziono adresu: '+address);
+      }
+    })
+    .catch(function(e){ callback('Błąd geokodowania: '+e.message); });
+}
+
+function calcRoute(){
+  var fromStr = document.getElementById('route-from').value.trim();
+  var toStr   = document.getElementById('route-to').value.trim();
+
+  if(!toStr){ notify('Wpisz adres docelowy'); return; }
+
+  var info = document.getElementById('route-info');
+  info.className = 'rp-info show';
+  info.textContent = '⏳ Obliczam trasę...';
+
+  // Resolve FROM
+  function resolveFrom(cb){
+    if(!fromStr){
+      if(myLat){ cb(null,[myLat,myLng],'Moja lokalizacja'); }
+      else { cb('Brak lokalizacji — kliknij 📍 lub włącz GPS'); }
+      return;
+    }
+    var coords = parseCoordStr(fromStr);
+    if(coords){ cb(null,coords,fromStr); return; }
+    geocodeAddress(fromStr, cb);
+  }
+
+  function resolveTo(cb){
+    var coords = parseCoordStr(toStr);
+    if(coords){ cb(null,coords,toStr); return; }
+    geocodeAddress(toStr, cb);
+  }
+
+  resolveFrom(function(err1, fromLL, fromName){
+    if(err1){ info.textContent='❌ '+err1; return; }
+    resolveTo(function(err2, toLL, toName){
+      if(err2){ info.textContent='❌ '+err2; return; }
+      drawRoute(fromLL, toLL, fromName, toName);
+    });
+  });
+}
+
+function drawRoute(fromLL, toLL, fromName, toName){
+  var info = document.getElementById('route-info');
+
+  // Clear previous route
+  if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
+  routeMarkers.forEach(function(m){try{map.removeLayer(m)}catch(e){}});
+  routeMarkers=[];
+
+  // Use OSRM (free, no API key needed)
+  var profile = routeMode==='foot-walking'?'foot':routeMode==='cycling-regular'?'bike':'car';
+  var url = 'https://router.project-osrm.org/route/v1/'+profile+'/'+fromLL[1]+','+fromLL[0]+';'+toLL[1]+','+toLL[0]+'?overview=full&geometries=geojson';
+
+  fetch(url)
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(!data.routes||!data.routes.length){ info.textContent='❌ Brak dostępnej trasy'; return; }
+      var route = data.routes[0];
+      var coords = route.geometry.coordinates.map(function(c){return[c[1],c[0]]});
+      var distKm = (route.distance/1000).toFixed(1);
+      var durMin = Math.round(route.duration/60);
+      var hours = Math.floor(durMin/60);
+      var mins = durMin%60;
+      var durStr = hours>0 ? hours+'h '+mins+'min' : mins+' min';
+
+      // Draw route line
+      routeLayer = L.polyline(coords,{
+        color:'#3b82f6',weight:5,opacity:.85,
+        dashArray: routeMode==='foot-walking'?'8 6':null
+      }).addTo(map);
+
+      // Start/end markers
+      var startIcon = L.divIcon({className:'',html:'<div style="width:14px;height:14px;border-radius:50%;background:#22c55e;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
+      var endIcon   = L.divIcon({className:'',html:'<div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
+      routeMarkers.push(L.marker(fromLL,{icon:startIcon,zIndexOffset:500}).addTo(map).bindPopup('<b>Start:</b><br>'+escapeHtml(fromName)));
+      routeMarkers.push(L.marker(toLL,{icon:endIcon,zIndexOffset:500}).addTo(map).bindPopup('<b>Cel:</b><br>'+escapeHtml(toName)));
+
+      map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
+
+      var modeEmoji = routeMode==='foot-walking'?'🚶':routeMode==='cycling-regular'?'🚲':'🚗';
+      info.className='rp-info show';
+      info.innerHTML = modeEmoji+' <b>'+distKm+' km</b> · ⏱ <b>'+durStr+'</b><br>'
+        +'📍 '+escapeHtml(toName.length>50?toName.slice(0,50)+'…':toName);
+      notify('Trasa wyznaczona: '+distKm+' km, '+durStr);
+    })
+    .catch(function(e){ info.textContent='❌ Błąd routingu: '+e.message; });
+}
+
+function clearRoute(){
+  if(routeLayer){map.removeLayer(routeLayer);routeLayer=null;}
+  routeMarkers.forEach(function(m){try{map.removeLayer(m)}catch(e){}});
+  routeMarkers=[];
+  document.getElementById('route-panel').classList.remove('open');
+  document.getElementById('route-from').value='';
+  document.getElementById('route-to').value='';
+  document.getElementById('route-info').className='rp-info';
+  setMode('Nawigacja');
+}
+
+/* ════════════════════════════════════════
+   PANIC BUTTON — SOS ALARM
+   ════════════════════════════════════════ */
+var panicActive = false;
+var panicTimer = null;
+var panicSeconds = 0;
+var panicInterval = null;
+
+function triggerPanic(){
+  if(panicActive){
+    cancelPanic();
+    return;
+  }
+  // Confirm
+  if(!confirm('🆘 URUCHOMIĆ ALARM SOS?\n\nAlert zostanie wysłany do całej drużyny z Twoją lokalizacją.\nNaciśnij OK aby potwierdzić.')){
+    return;
+  }
+  panicActive = true;
+  panicSeconds = 0;
+  document.getElementById('panic-btn').classList.add('triggered');
+  document.getElementById('panic-btn').textContent = '🛑';
+  document.getElementById('panic-overlay').classList.add('open');
+
+  // Vibrate SOS pattern: ... --- ...
+  if(navigator.vibrate) navigator.vibrate([200,100,200,100,200,300,500,100,500,100,500,300,200,100,200,100,200]);
+
+  // Get location
+  var coordsEl = document.getElementById('panic-coords');
+  var statusEl = document.getElementById('panic-status');
+  var lat = myLat, lng = myLng;
+
+  if(lat){
+    coordsEl.textContent = lat.toFixed(5)+'° N, '+lng.toFixed(5)+'° E\n'+lat.toFixed(4)+'N '+lng.toFixed(4)+'E (MGRS approx.)';
+  } else {
+    coordsEl.textContent = 'Brak lokalizacji GPS';
+    navigator.geolocation && navigator.geolocation.getCurrentPosition(function(p){
+      lat=p.coords.latitude; lng=p.coords.longitude;
+      coordsEl.textContent = lat.toFixed(5)+'° N, '+lng.toFixed(5)+'° E';
+      sendPanicAlert(lat, lng);
+    });
+  }
+
+  if(lat) sendPanicAlert(lat, lng);
+
+  // Timer
+  panicInterval = setInterval(function(){
+    panicSeconds++;
+    var m = Math.floor(panicSeconds/60);
+    var s = (panicSeconds%60).toString().padStart(2,'0');
+    var timerEl = document.getElementById('panic-timer');
+    if(timerEl) timerEl.textContent = m+':'+s;
+    // Repeat vibrate every 10s
+    if(panicSeconds%10===0 && navigator.vibrate) navigator.vibrate([500,200,500]);
+    // Repeat firebase alert every 30s
+    if(panicSeconds%30===0 && lat) sendPanicAlert(lat, lng);
+  }, 1000);
+
+  statusEl.textContent = 'Alert wysłany do drużyny · '+profile.callsign+' potrzebuje pomocy!';
+}
+
+function sendPanicAlert(lat, lng){
+  if(!currentRoom || !firebaseReady) return;
+  var alert = {
+    type:'SOS',
+    from: myPeerId,
+    callsign: profile.callsign,
+    icon: profile.icon,
+    lat: lat, lng: lng,
+    ts: Date.now(),
+    msg: '🆘 SOS od '+profile.callsign+' — wymagana natychmiastowa pomoc!'
+  };
+  fbDb.ref('rooms/'+currentRoom+'/panic/'+myPeerId).set(alert);
+  // Also send to chat
+  fbDb.ref('rooms/'+currentRoom+'/chat').push({
+    peerId: myPeerId,
+    callsign: profile.callsign,
+    icon: '🆘',
+    text: '🆘 SOS! '+profile.callsign+' potrzebuje pomocy! Poz: '+lat.toFixed(5)+'° N, '+lng.toFixed(5)+'° E',
+    ts: Date.now()
+  });
+  // Place red SOS marker on map
+  if(window._panicMark) try{map.removeLayer(window._panicMark)}catch(e){}
+  var sosIcon = L.divIcon({className:'',html:'<div style="background:#ef4444;color:#fff;font-weight:900;font-size:11px;padding:4px 7px;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 12px rgba(239,68,68,.8);white-space:nowrap">🆘 SOS</div>',iconSize:[60,28],iconAnchor:[30,28]});
+  window._panicMark = L.marker([lat,lng],{icon:sosIcon,zIndexOffset:2000}).addTo(map).bindPopup('<b>🆘 SOS · '+escapeHtml(profile.callsign)+'</b><br>'+lat.toFixed(5)+'° N, '+lng.toFixed(5)+'° E');
+  map.flyTo([lat,lng],15,{duration:1});
+}
+
+function cancelPanic(){
+  panicActive = false;
+  if(panicInterval){clearInterval(panicInterval);panicInterval=null;}
+  document.getElementById('panic-btn').classList.remove('triggered');
+  document.getElementById('panic-btn').textContent = '🆘';
+  document.getElementById('panic-overlay').classList.remove('open');
+  if(navigator.vibrate) navigator.vibrate(0);
+  // Remove firebase panic alert
+  if(currentRoom && firebaseReady) fbDb.ref('rooms/'+currentRoom+'/panic/'+myPeerId).remove();
+  notify('Alarm SOS anulowany');
+}
+
+// Listen for incoming panic alerts
+function listenForPanic(code){
+  if(!firebaseReady) return;
+  fbDb.ref('rooms/'+code+'/panic').on('child_added', function(snap){
+    var d = snap.val();
+    if(!d || d.from===myPeerId) return;
+    if(Date.now()-d.ts>60000) return; // ignore old
+    // Alert the user
+    if(navigator.vibrate) navigator.vibrate([500,200,500,200,500]);
+    notify('🆘 SOS OD '+d.callsign+'! Poz: '+d.lat.toFixed(4)+'° N, '+d.lng.toFixed(4)+'° E');
+    // Place marker on map
+    var sosIcon = L.divIcon({className:'',html:'<div style="background:#ef4444;color:#fff;font-weight:900;font-size:11px;padding:4px 7px;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 12px rgba(239,68,68,.8);white-space:nowrap">🆘 '+escapeHtml(d.callsign)+'</div>',iconSize:[80,28],iconAnchor:[40,28]});
+    L.marker([d.lat,d.lng],{icon:sosIcon,zIndexOffset:2000}).addTo(map).bindPopup('<b>🆘 SOS · '+escapeHtml(d.callsign)+'</b><br>'+d.lat.toFixed(5)+'° N, '+d.lng.toFixed(5)+'° E<br><small>'+new Date(d.ts).toLocaleTimeString('pl-PL')+'</small>');
+    // Switch to map tab
+    switchTab('map');
+  });
+}
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
