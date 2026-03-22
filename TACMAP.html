@@ -1373,7 +1373,7 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 <div id="route-panel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <div class="rp-title">🗺 Wyznacz trasę</div>
-    <button class="rp-btn danger" onclick="clearRoute()" style="padding:3px 8px;font-size:10px">✕ Zamknij</button>
+    <button class="rp-btn danger" onclick="closeRoutePanel()" style="padding:3px 8px;font-size:10px">✕ Zamknij</button>
   </div>
   <div class="rp-modes">
     <button class="rp-mode on" data-mode="driving" onclick="selectRouteMode(this,'driving')">🚗 Auto</button>
@@ -2077,7 +2077,7 @@ function switchTab(t){
 /* ════════ TOOLS ════════ */
 function stopDraw(){if(drawHandler){try{drawHandler.disable()}catch(e){}drawHandler=null}}
 function setMode(t){document.getElementById('smode').textContent=t}
-function reset(){stopDraw();setActiveTool('pan');setMode('Nawigacja');stopFreehand();pendingCMClick=false}
+function reset(){stopDraw();setActiveTool('pan');setMode('Nawigacja');stopFreehand();pendingCMClick=false;pendingTaskLocPick=false}
 function setActiveTool(id){
   activeTool=id;
   document.querySelectorAll('.tb,.mob-tb,.ls-tb').forEach(function(b){b.classList.remove('on')});
@@ -4913,14 +4913,18 @@ function drawRoute(fromLL, toLL, fromName, toName){
 }
 
 function clearRoute(){
+  // Clear route lines/markers from map but KEEP panel open
   if(routeLayer){map.removeLayer(routeLayer);routeLayer=null;}
   routeMarkers.forEach(function(m){try{map.removeLayer(m)}catch(e){}});
   routeMarkers=[];
-  document.getElementById('route-panel').classList.remove('open');
   document.getElementById('route-from').value='';
   document.getElementById('route-to').value='';
   document.getElementById('route-info').className='rp-info';
   setMode('Nawigacja');
+}
+function closeRoutePanel(){
+  clearRoute();
+  document.getElementById('route-panel').classList.remove('open');
 }
 
 /* ════════════════════════════════════════
@@ -5044,6 +5048,7 @@ function listenForPanic(code){
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open')})});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(document.querySelector('.overlay.open'))document.querySelectorAll('.overlay.open').forEach(function(o){o.classList.remove('open')});else reset()}});
+// Route panel stays open on Escape — only close via X button
 
 /* ════════ NOTIFICATION ════════ */
 var nt;
