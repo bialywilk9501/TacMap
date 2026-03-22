@@ -1190,6 +1190,104 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 }
 /* ── BETTER MODAL FOOTER ── */
 .modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--b1);flex-shrink:0}
+
+/* ── VIDEO RECORDER ── */
+#video-recorder{
+  position:fixed;inset:0;z-index:9995;background:#000;
+  display:none;flex-direction:column;
+}
+#video-recorder.open{display:flex}
+#video-preview{
+  flex:1;width:100%;object-fit:cover;
+  background:#000;display:block;
+}
+#video-controls{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:20px 24px 36px;
+  background:linear-gradient(transparent,rgba(0,0,0,.85));
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+#video-top-bar{
+  position:absolute;top:0;left:0;right:0;
+  padding:16px 20px;
+  background:linear-gradient(rgba(0,0,0,.7),transparent);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.vid-close-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.vid-close-btn:active{background:rgba(255,255,255,.3)}
+#vid-timer{
+  font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;
+  color:#fff;background:rgba(255,0,0,.7);padding:4px 10px;
+  border-radius:6px;display:none;letter-spacing:1px;
+}
+#vid-timer.show{display:block}
+.vid-rec-btn{
+  width:72px;height:72px;border-radius:50%;
+  border:4px solid #fff;background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
+}
+.vid-rec-btn-inner{
+  width:52px;height:52px;border-radius:50%;
+  background:#ef4444;transition:all .2s;
+}
+.vid-rec-btn.recording .vid-rec-btn-inner{
+  width:28px;height:28px;border-radius:8px;background:#ef4444;
+}
+.vid-rec-btn:active{transform:scale(.93)}
+.vid-side-btn{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  color:#fff;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  font-size:9px;font-family:'IBM Plex Sans',sans-serif;
+  font-weight:600;letter-spacing:.3px;backdrop-filter:blur(4px);
+  transition:all .15s;
+}
+.vid-side-btn:active{background:rgba(255,255,255,.3)}
+.vid-side-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+#vid-flash-overlay{
+  position:absolute;inset:0;background:#fff;
+  opacity:0;pointer-events:none;transition:opacity .1s;
+}
+#vid-recordings-panel{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.95);display:none;flex-direction:column;
+  overflow-y:auto;padding:20px;
+}
+#vid-recordings-panel.open{display:flex}
+.vid-rec-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;background:rgba(255,255,255,.06);
+  border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,.1);
+}
+.vid-rec-thumb{
+  width:64px;height:48px;border-radius:6px;
+  background:#1a1a1a;object-fit:cover;flex-shrink:0;
+}
+.vid-rec-info{flex:1;min-width:0}
+.vid-rec-name{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px}
+.vid-rec-meta{font-size:10px;color:rgba(255,255,255,.5);font-family:'IBM Plex Mono',monospace}
+.vid-rec-actions{display:flex;gap:6px;flex-shrink:0}
+.vid-rec-act-btn{
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:all .1s;
+}
+.vid-rec-act-btn:active{background:rgba(255,255,255,.25)}
+#vid-size-info{
+  font-size:10px;color:rgba(255,255,255,.5);
+  font-family:'IBM Plex Mono',monospace;text-align:center;
+  margin-top:4px;
+}
 </style>
 </head>
 <body>
@@ -1327,6 +1425,10 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
     <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
     <span>Głosowa</span>
     <span id="vm-badge" style="display:none;background:var(--amber);color:#000;font-size:8px;font-weight:700;padding:1px 5px;border-radius:9px;margin-left:2px">!</span>
+  </button>
+  <button class="ab-btn" onclick="openVideoRecorder()">
+    <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    <span>Wideo</span>
   </button>
   <button class="ab-btn" onclick="openNatoModal()">
     <svg viewBox="0 0 24 24"><polygon points="12 2 2 19 22 19"/></svg>
@@ -1635,7 +1737,13 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <div id="tab-team-panel">
     <div class="team-header">
       <div class="team-title">Skład drużyny</div>
-      <button class="team-add-btn" onclick="openAddMember()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Dodaj członka</button>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+        <button class="team-add-btn" onclick="removeInactiveMembers()" style="color:var(--red);border-color:rgba(239,68,68,.3)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="18" x2="17" y2="18"/></svg>
+          Usuń nieaktywnych
+        </button>
+        <button class="team-add-btn" onclick="openAddMember()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Dodaj członka</button>
+      </div>
     </div>
     <div class="team-grid" id="team-grid">
       <div class="team-empty" id="team-empty">
@@ -2225,6 +2333,55 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
     </div>
   </div>
 </div>
+
+<!-- VIDEO RECORDER -->
+<div id="video-recorder">
+  <div id="vid-flash-overlay"></div>
+
+  <!-- Top bar -->
+  <div id="video-top-bar">
+    <button class="vid-close-btn" onclick="closeVideoRecorder()">✕</button>
+    <div id="vid-timer">⏺ 00:00</div>
+    <button class="vid-side-btn" onclick="showRecordings()" id="vid-gallery-btn">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Nagrane
+    </button>
+  </div>
+
+  <!-- Camera preview -->
+  <video id="video-preview" autoplay muted playsinline></video>
+
+  <!-- Controls -->
+  <div id="video-controls">
+    <!-- Flip camera -->
+    <button class="vid-side-btn" onclick="flipCamera()" id="vid-flip-btn">
+      <svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+      Obróć
+    </button>
+
+    <!-- Record button -->
+    <button class="vid-rec-btn" id="vid-rec-btn" onclick="toggleVideoRecording()">
+      <div class="vid-rec-btn-inner"></div>
+    </button>
+
+    <!-- Send to chat -->
+    <button class="vid-side-btn" id="vid-send-btn" onclick="sendLastVideoToChat()" style="opacity:.4" disabled>
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Wyślij
+    </button>
+  </div>
+
+  <!-- Recordings panel -->
+  <div id="vid-recordings-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="color:#fff;font-size:14px;font-weight:700">📹 Nagrane wideo</div>
+      <button class="vid-close-btn" onclick="hideRecordings()">✕</button>
+    </div>
+    <div id="vid-recordings-list">
+      <div style="color:rgba(255,255,255,.4);text-align:center;padding:32px;font-size:13px">Brak nagrań</div>
+    </div>
+  </div>
+</div>
 <div id="notif"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2810,6 +2967,33 @@ function removeMember(id){
   if(memberMarkers[id]){map.removeLayer(memberMarkers[id]);delete memberMarkers[id]}
   renderTeam();notify('Usunięto członka drużyny');
 }
+function removeInactiveMembers(){
+  var before = teamMembers.length;
+  // Remove members that are: offline AND not synced (manually added, not active)
+  var toRemove = teamMembers.filter(function(m){
+    return !m.synced && m.status === 'offline';
+  });
+  if(toRemove.length === 0){
+    notify('Brak nieaktywnych operatorów do usunięcia');
+    return;
+  }
+  if(!confirm('Usunąć ' + toRemove.length + ' nieaktywnych operatorów (status: offline, brak sync)?')){
+    return;
+  }
+  toRemove.forEach(function(m){
+    // Remove map marker if exists
+    if(memberMarkers[m.id]){
+      try{map.removeLayer(memberMarkers[m.id]);}catch(e){}
+      delete memberMarkers[m.id];
+    }
+  });
+  teamMembers = teamMembers.filter(function(m){
+    return m.synced || m.status !== 'offline';
+  });
+  renderTeam();
+  notify('Usunięto ' + toRemove.length + ' nieaktywnych operatorów');
+}
+
 function locateMember(id){
   var m=teamMembers.find(function(x){return x.id===id});
   if(!m||!m.lat)return;
@@ -5779,6 +5963,251 @@ var _weatherWatchInterval = setInterval(function(){
 setInterval(function(){
   if(myLat && weatherData) fetchWeather();
 }, 10*60*1000);
+
+/* ════════════════════════════════════════
+   VIDEO RECORDER
+   ════════════════════════════════════════ */
+var vidStream = null;
+var vidMediaRecorder = null;
+var vidChunks = [];
+var vidRecording = false;
+var vidTimerInterval = null;
+var vidSeconds = 0;
+var vidFacingMode = 'environment'; // back camera default
+var vidRecordings = []; // {blob, url, name, duration, ts, size}
+var vidLastBlob = null;
+
+function openVideoRecorder(){
+  document.getElementById('video-recorder').classList.add('open');
+  startCamera();
+}
+
+function closeVideoRecorder(){
+  if(vidRecording) stopVideoRecording();
+  stopCamera();
+  document.getElementById('video-recorder').classList.remove('open');
+}
+
+function startCamera(){
+  stopCamera();
+  var constraints = {
+    video:{facingMode:vidFacingMode, width:{ideal:1280}, height:{ideal:720}},
+    audio:true
+  };
+  navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+    vidStream = stream;
+    var preview = document.getElementById('video-preview');
+    preview.srcObject = stream;
+  }).catch(function(e){
+    notify('Brak dostępu do kamery: '+e.message);
+    closeVideoRecorder();
+  });
+}
+
+function stopCamera(){
+  if(vidStream){
+    vidStream.getTracks().forEach(function(t){t.stop()});
+    vidStream = null;
+  }
+  var preview = document.getElementById('video-preview');
+  preview.srcObject = null;
+}
+
+function flipCamera(){
+  vidFacingMode = vidFacingMode==='environment' ? 'user' : 'environment';
+  // Flash effect
+  var flash = document.getElementById('vid-flash-overlay');
+  flash.style.opacity = '0.6';
+  setTimeout(function(){ flash.style.opacity='0'; }, 150);
+  startCamera();
+}
+
+function toggleVideoRecording(){
+  if(vidRecording) stopVideoRecording();
+  else startVideoRecording();
+}
+
+function startVideoRecording(){
+  if(!vidStream){ notify('Brak strumienia kamery'); return; }
+  vidChunks = [];
+  vidSeconds = 0;
+
+  var mimeTypes = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4',''];
+  var chosenMime = '';
+  for(var i=0;i<mimeTypes.length;i++){
+    if(mimeTypes[i]===''||MediaRecorder.isTypeSupported(mimeTypes[i])){
+      chosenMime=mimeTypes[i]; break;
+    }
+  }
+  var opts = chosenMime ? {mimeType:chosenMime} : {};
+
+  vidMediaRecorder = new MediaRecorder(vidStream, opts);
+  vidMediaRecorder.ondataavailable = function(e){
+    if(e.data && e.data.size>0) vidChunks.push(e.data);
+  };
+  vidMediaRecorder.onstop = function(){
+    var mime = vidMediaRecorder.mimeType || 'video/webm';
+    var blob = new Blob(vidChunks, {type:mime});
+    var ext = mime.includes('mp4') ? 'mp4' : 'webm';
+    var name = 'tacmap_'+new Date().toISOString().slice(0,19).replace(/[T:]/g,'-')+'.'+ext;
+    var url = URL.createObjectURL(blob);
+    var rec = {blob:blob, url:url, name:name, duration:vidSeconds, ts:Date.now(), size:blob.size, mime:mime};
+    vidRecordings.unshift(rec);
+    vidLastBlob = rec;
+    // Enable send button
+    var sendBtn = document.getElementById('vid-send-btn');
+    sendBtn.style.opacity='1'; sendBtn.disabled=false;
+    notify('📹 Nagranie gotowe ('+formatVidSize(blob.size)+') — pobierz lub wyślij');
+    renderRecordingsList();
+  };
+
+  vidMediaRecorder.start(500);
+  vidRecording = true;
+  document.getElementById('vid-rec-btn').classList.add('recording');
+  document.getElementById('vid-timer').classList.add('show');
+
+  // Timer
+  vidTimerInterval = setInterval(function(){
+    vidSeconds++;
+    var m = Math.floor(vidSeconds/60).toString().padStart(2,'0');
+    var s = (vidSeconds%60).toString().padStart(2,'0');
+    document.getElementById('vid-timer').textContent = '⏺ '+m+':'+s;
+    // Auto-stop at 3 min to avoid huge files
+    if(vidSeconds >= 180) stopVideoRecording();
+  }, 1000);
+
+  // Keep screen on
+  if(typeof requestWakeLock==='function') requestWakeLock();
+  notify('⏺ Nagrywanie wideo...');
+}
+
+function stopVideoRecording(){
+  if(!vidRecording) return;
+  vidRecording = false;
+  clearInterval(vidTimerInterval);
+  document.getElementById('vid-rec-btn').classList.remove('recording');
+  document.getElementById('vid-timer').classList.remove('show');
+  document.getElementById('vid-timer').textContent = '⏺ 00:00';
+  if(vidMediaRecorder && vidMediaRecorder.state!=='inactive'){
+    vidMediaRecorder.stop();
+  }
+}
+
+function formatVidSize(bytes){
+  if(bytes < 1024*1024) return Math.round(bytes/1024)+'KB';
+  return (bytes/1024/1024).toFixed(1)+'MB';
+}
+
+function downloadVideo(rec){
+  var a = document.createElement('a');
+  a.href = rec.url;
+  a.download = rec.name;
+  a.click();
+  notify('⬇ Pobieranie: '+rec.name);
+}
+
+function sendLastVideoToChat(){
+  if(!vidLastBlob){ notify('Brak nagrania do wysłania'); return; }
+  sendVideoToChat(vidLastBlob);
+}
+
+function sendVideoToChat(rec){
+  if(!currentRoom||!firebaseReady){ notify('Dołącz do pokoju aby wysłać wideo'); return; }
+  // Convert to base64 — warn if too large
+  var maxSize = 1.5 * 1024 * 1024; // 1.5MB base64 limit
+  if(rec.blob.size > maxSize){
+    notify('Wideo za duże ('+formatVidSize(rec.blob.size)+') — max ~1MB. Nagraj krótszy klip.');
+    return;
+  }
+  notify('⏳ Wysyłanie wideo...');
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var b64 = ev.target.result;
+    fbDb.ref('rooms/'+currentRoom+'/chat').push({
+      peerId: myPeerId,
+      callsign: profile.callsign,
+      icon: profile.icon,
+      text: '📹 Wideo ('+Math.floor(rec.duration/60)+'m '+( rec.duration%60)+'s, '+formatVidSize(rec.blob.size)+')',
+      video: b64,
+      ts: Date.now()
+    }).then(function(){
+      notify('📹 Wideo wysłane na czat!');
+    }).catch(function(e){ notify('Błąd wysyłania: '+e.message); });
+  };
+  reader.readAsDataURL(rec.blob);
+}
+
+function renderRecordingsList(){
+  var list = document.getElementById('vid-recordings-list');
+  list.innerHTML = '';
+  if(vidRecordings.length===0){
+    list.innerHTML='<div style="color:rgba(255,255,255,.4);text-align:center;padding:32px;font-size:13px">Brak nagrań</div>';
+    return;
+  }
+  vidRecordings.forEach(function(rec, idx){
+    var item = document.createElement('div');
+    item.className = 'vid-rec-item';
+    var dur = Math.floor(rec.duration/60).toString().padStart(2,'0')+':'+(rec.duration%60).toString().padStart(2,'0');
+    var t = new Date(rec.ts).toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
+    item.innerHTML =
+      '<div style="width:64px;height:48px;border-radius:6px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📹</div>'+
+      '<div class="vid-rec-info">'+
+        '<div class="vid-rec-name">'+rec.name+'</div>'+
+        '<div class="vid-rec-meta">'+dur+' · '+formatVidSize(rec.size)+' · '+t+'</div>'+
+      '</div>'+
+      '<div class="vid-rec-actions"></div>';
+    var actions = item.querySelector('.vid-rec-actions');
+    // Download
+    var dl = document.createElement('button');
+    dl.className='vid-rec-act-btn'; dl.textContent='⬇'; dl.title='Pobierz';
+    dl.onclick=(function(r){return function(){downloadVideo(r)}})(rec);
+    // Send to chat
+    var send = document.createElement('button');
+    send.className='vid-rec-act-btn'; send.textContent='💬'; send.title='Wyślij na czat';
+    send.onclick=(function(r){return function(){sendVideoToChat(r)}})(rec);
+    // Delete
+    var del = document.createElement('button');
+    del.className='vid-rec-act-btn'; del.textContent='🗑'; del.title='Usuń';
+    del.onclick=(function(i, r){return function(){
+      URL.revokeObjectURL(r.url);
+      vidRecordings.splice(i,1);
+      if(vidLastBlob===r) vidLastBlob=vidRecordings[0]||null;
+      renderRecordingsList();
+    }})(idx, rec);
+    actions.appendChild(dl); actions.appendChild(send); actions.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+function showRecordings(){
+  renderRecordingsList();
+  document.getElementById('vid-recordings-panel').classList.add('open');
+}
+function hideRecordings(){
+  document.getElementById('vid-recordings-panel').classList.remove('open');
+}
+
+// Show video in chat (add to renderChatMsg)
+var _origRenderChatMsg = renderChatMsg;
+renderChatMsg = function(d, isMine){
+  _origRenderChatMsg(d, isMine);
+  // If message has video, add video player to last bubble
+  if(d.video){
+    var msgs = document.getElementById('chat-msgs');
+    var lastRow = msgs.lastElementChild;
+    if(lastRow){
+      var bubble = lastRow.querySelector('.msg-bubble');
+      if(bubble){
+        var vid = document.createElement('video');
+        vid.controls = true;
+        vid.playsinline = true;
+        vid.style.cssText = 'max-width:220px;border-radius:8px;display:block;margin-top:4px;border:1px solid var(--b1)';
+        vid.src = d.video;
+        bubble.appendChild(vid);
+      }
+    }
+  }
+};
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
