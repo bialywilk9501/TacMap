@@ -1109,6 +1109,68 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 .tz-name{font-size:11px;font-weight:600;color:var(--t1)}
 .tz-offset{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px}
 .tz-time{font-size:10px;color:var(--t2);font-family:'IBM Plex Mono',monospace;margin-top:3px;font-weight:600}
+
+/* ── SITREP TAB ── */
+.sitrep-form{display:flex;flex-direction:column;gap:12px}
+.sr-section{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden}
+.sr-section-head{padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--t1);text-transform:uppercase;letter-spacing:.6px;cursor:pointer;user-select:none}
+.sr-section-head .sr-icon{font-size:15px}
+.sr-section-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.sr-field label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px}
+.sr-field input,.sr-field textarea,.sr-field select{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--b1);background:var(--bg);font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--t1);outline:none;transition:border .1s;-webkit-appearance:none}
+.sr-field input:focus,.sr-field textarea:focus,.sr-field select:focus{border-color:var(--acc);background:var(--s2)}
+.sr-field textarea{resize:vertical;min-height:64px;line-height:1.5}
+.sr-field select{cursor:pointer}
+.sr-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sr-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sr-status-row{display:flex;gap:6px;flex-wrap:wrap}
+.sr-status-btn{flex:1;min-width:60px;padding:7px 4px;border-radius:7px;border:1.5px solid var(--b1);background:var(--s2);font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;text-align:center;transition:all .12s;color:var(--t2)}
+.sr-status-btn:hover{border-color:var(--b2)}
+.sr-status-btn.on{border-color:currentColor}
+.sr-status-btn.green{color:var(--green)}.sr-status-btn.green.on{background:var(--green-bg)}
+.sr-status-btn.amber{color:var(--amber)}.sr-status-btn.amber.on{background:var(--amber-bg)}
+.sr-status-btn.red{color:var(--red)}.sr-status-btn.red.on{background:var(--red-bg)}
+.sr-status-btn.blue{color:#3b82f6}.sr-status-btn.blue.on{background:rgba(59,130,246,.12)}
+.sitrep-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sitrep-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden}
+.sitrep-card-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1)}
+.sitrep-card-title{font-size:12px;font-weight:700;color:var(--t1)}
+.sitrep-card-meta{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.sitrep-card-body{padding:10px 14px;font-size:11px;color:var(--t2);line-height:1.7}
+.sitrep-card-body b{color:var(--t1)}
+.sr-empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.sr-empty svg{width:40px;height:40px;stroke:var(--b2);fill:none;stroke-width:1.5;display:block;margin:0 auto 10px}
+.sr-send-bar{display:flex;gap:8px;align-items:center;margin-top:4px}
+.sr-preview{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.8;margin-top:4px;font-family:'IBM Plex Mono',monospace;white-space:pre-wrap;display:none}
+.sr-preview.show{display:block}
+
+/* ── WEATHER WIDGET ── */
+#weather-widget{
+  position:absolute;top:10px;left:10px;z-index:600;
+  background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);
+  padding:8px 12px;min-width:120px;box-shadow:var(--shadow);
+  cursor:pointer;display:none;transition:all .2s;
+}
+#weather-widget:hover{border-color:var(--b2)}
+.ww-temp{font-size:22px;font-weight:700;color:var(--t1);line-height:1}
+.ww-desc{font-size:10px;color:var(--t2);margin-top:2px;text-transform:capitalize}
+.ww-row{display:flex;gap:10px;margin-top:6px;font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.ww-icon{font-size:28px;line-height:1}
+.ww-top{display:flex;align-items:center;gap:8px}
+.ww-loc{font-size:9px;color:var(--t3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+
+/* weather detail modal */
+#weather-modal .modal{max-width:380px}
+.wd-current{display:flex;align-items:center;gap:16px;padding:16px;background:var(--s2);border-radius:var(--r2);margin-bottom:12px;border:1px solid var(--b1)}
+.wd-icon{font-size:52px;line-height:1}
+.wd-temp-big{font-size:36px;font-weight:700;color:var(--t1);line-height:1}
+.wd-desc-big{font-size:12px;color:var(--t2);text-transform:capitalize;margin-top:2px}
+.wd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.wd-stat{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px 8px;text-align:center}
+.wd-stat-val{font-size:14px;font-weight:700;color:var(--t1);font-family:'IBM Plex Mono',monospace}
+.wd-stat-key{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.wd-tactical{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.8}
+.wd-tactical b{color:var(--t1)}
 </style>
 </head>
 <body>
@@ -1275,6 +1337,7 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <button class="tab-btn" id="tab-team-btn" onclick="switchTab('team')">👥 Drużyna <span id="team-count" style="font-size:9px;background:var(--acc-bg);padding:1px 6px;border-radius:3px;margin-left:3px">0</span></button>
   <button class="tab-btn" id="tab-tasks-btn" onclick="switchTab('tasks')">✅ Zadania <span id="task-count">0</span></button>
   <button class="tab-btn" id="tab-session-btn" onclick="switchTab('session')">💾 Sesje</button>
+  <button class="tab-btn" id="tab-sitrep-btn" onclick="switchTab('sitrep')">📋 SITREP</button>
 </div>
 
 <!-- CONTENT AREA -->
@@ -1359,7 +1422,57 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
       </div>
     </div>
     <div id="mapwrap"><div id="map"></div><canvas id="draw-canvas"></canvas>
-    <!-- TOPO SWITCHER -->
+    
+<!-- WEATHER WIDGET -->
+<div id="weather-widget" onclick="openWeatherModal()" title="Pogoda — kliknij po szczegóły">
+  <div class="ww-top">
+    <div class="ww-icon" id="ww-icon">🌡</div>
+    <div>
+      <div class="ww-temp" id="ww-temp">--°</div>
+      <div class="ww-desc" id="ww-desc">Ładowanie...</div>
+    </div>
+  </div>
+  <div class="ww-loc" id="ww-loc">—</div>
+  <div class="ww-row">
+    <span id="ww-wind">💨 —</span>
+    <span id="ww-humid">💧 —</span>
+  </div>
+</div>
+
+<!-- WEATHER MODAL -->
+<div class="overlay" id="weather-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">🌤 Pogoda taktyczna</div><button class="modal-close" onclick="closeModal('weather-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="wd-current">
+        <div class="wd-icon" id="wd-icon">🌡</div>
+        <div>
+          <div class="wd-temp-big" id="wd-temp">--°C</div>
+          <div class="wd-desc-big" id="wd-desc">—</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:4px" id="wd-loc">—</div>
+        </div>
+      </div>
+      <div class="wd-grid">
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-feels">--°</div><div class="wd-stat-key">Odczuwalna</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-wind">--</div><div class="wd-stat-key">Wiatr</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-humid">--%</div><div class="wd-stat-key">Wilgotność</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-vis">--</div><div class="wd-stat-key">Widoczność</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-press">--</div><div class="wd-stat-key">Ciśnienie</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" id="wd-cloud">--%</div><div class="wd-stat-key">Zachmurzenie</div></div>
+      </div>
+      <div class="wd-tactical" id="wd-tactical">
+        <b>Ocena taktyczna:</b> Ładowanie...
+      </div>
+      <div style="text-align:right;font-size:9px;color:var(--t3);margin-top:8px" id="wd-updated">—</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-c" onclick="fetchWeather()">🔄 Odśwież</button>
+      <button class="btn-ok" onclick="closeModal('weather-modal')">Zamknij</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOPO SWITCHER -->
     <div id="topo-switcher">
       <button class="topo-btn on" data-topo="dark" onclick="setTopo(this,'dark')">🌑 Ciemna</button>
       <button class="topo-btn" data-topo="light" onclick="setTopo(this,'light')">☀️ Jasna</button>
@@ -1566,6 +1679,116 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
     </div>
   </div>
 </div>
+
+  <!-- SITREP TAB -->
+  <div id="tab-sitrep-panel" style="display:none;width:100%;background:var(--bg);overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:14px;font-weight:700;color:var(--t1)">📋 SITREP / Meldunki</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-c" id="sr-preview-btn" onclick="toggleSitrepPreview()">Podgląd</button>
+        <button class="btn-ok" onclick="sendSitrep()">Wyślij SITREP</button>
+      </div>
+    </div>
+
+    <div class="sitrep-form">
+      <!-- SITUATION -->
+      <div class="sr-section">
+        <div class="sr-section-head"><span class="sr-icon">📍</span>SITUATION — Sytuacja</div>
+        <div class="sr-section-body">
+          <div class="sr-grid2">
+            <div class="sr-field"><label>DTG (Data/Czas)</label><input type="text" id="sr-dtg" placeholder="auto"/></div>
+            <div class="sr-field"><label>Pozycja</label><input type="text" id="sr-pos" placeholder="auto z GPS"/></div>
+          </div>
+          <div class="sr-field"><label>Stan drużyny</label>
+            <div class="sr-status-row">
+              <button class="sr-status-btn green" data-s="GREEN" onclick="selectSRStatus(this,'GREEN')">🟢 GREEN</button>
+              <button class="sr-status-btn amber on" data-s="AMBER" onclick="selectSRStatus(this,'AMBER')">🟡 AMBER</button>
+              <button class="sr-status-btn red" data-s="RED" onclick="selectSRStatus(this,'RED')">🔴 RED</button>
+              <button class="sr-status-btn blue" data-s="BLACK" onclick="selectSRStatus(this,'BLACK')">⚫ BLACK</button>
+            </div>
+          </div>
+          <div class="sr-field"><label>Opis sytuacji</label><textarea id="sr-situation" placeholder="Opis aktualnej sytuacji taktycznej..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- MISSION -->
+      <div class="sr-section">
+        <div class="sr-section-head"><span class="sr-icon">🎯</span>MISSION — Zadanie</div>
+        <div class="sr-section-body">
+          <div class="sr-field"><label>Aktualne zadanie</label><textarea id="sr-mission" placeholder="Co robi drużyna, jaki jest cel misji..."></textarea></div>
+          <div class="sr-grid2">
+            <div class="sr-field"><label>Cel osiągnięty</label>
+              <select id="sr-obj"><option value="NIE">NIE</option><option value="CZĘŚCIOWO">CZĘŚCIOWO</option><option value="TAK">TAK</option></select>
+            </div>
+            <div class="sr-field"><label>% Wykonania</label><input type="number" id="sr-pct" min="0" max="100" value="0" placeholder="0-100"/></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXECUTION -->
+      <div class="sr-section">
+        <div class="sr-section-head"><span class="sr-icon">⚔️</span>EXECUTION — Działania</div>
+        <div class="sr-section-body">
+          <div class="sr-field"><label>Kontakt z nieprzyjacielem</label>
+            <div class="sr-status-row">
+              <button class="sr-status-btn green on" data-e="BRAK" onclick="selectSRContact(this,'BRAK')">Brak</button>
+              <button class="sr-status-btn amber" data-e="MOŻLIWY" onclick="selectSRContact(this,'MOŻLIWY')">Możliwy</button>
+              <button class="sr-status-btn red" data-e="AKTYWNY" onclick="selectSRContact(this,'AKTYWNY')">Aktywny</button>
+            </div>
+          </div>
+          <div class="sr-field"><label>Działania podjęte</label><textarea id="sr-actions" placeholder="Jakie działania podjęto..."></textarea></div>
+          <div class="sr-field"><label>Kontakt z wrogiem (szczegóły)</label><textarea id="sr-enemy" placeholder="Pozycja, siły, broń wroga..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- ADMIN/LOGISTICS -->
+      <div class="sr-section">
+        <div class="sr-section-head"><span class="sr-icon">🎒</span>ADMIN/LOG — Zaopatrzenie</div>
+        <div class="sr-section-body">
+          <div class="sr-grid3">
+            <div class="sr-field"><label>Amunicja</label>
+              <select id="sr-ammo"><option>PEŁNA</option><option>3/4</option><option>1/2</option><option>1/4</option><option>KRYTYCZNA</option></select>
+            </div>
+            <div class="sr-field"><label>Woda/Racje</label>
+              <select id="sr-supply"><option>OK</option><option>NISKI</option><option>KRYTYCZNY</option></select>
+            </div>
+            <div class="sr-field"><label>Paliwo/Baterie</label>
+              <select id="sr-fuel"><option>OK</option><option>NISKI</option><option>KRYTYCZNY</option></select>
+            </div>
+          </div>
+          <div class="sr-field"><label>Straty (WIA/KIA/MIA)</label><input type="text" id="sr-cas" placeholder="np. 0 KIA / 1 WIA / 0 MIA"/></div>
+          <div class="sr-field"><label>Wymagane wsparcie / Resuply</label><textarea id="sr-needs" placeholder="Co jest potrzebne..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- COMMAND/SIGNAL -->
+      <div class="sr-section">
+        <div class="sr-section-head"><span class="sr-icon">📡</span>COMMAND — Dowodzenie</div>
+        <div class="sr-section-body">
+          <div class="sr-grid2">
+            <div class="sr-field"><label>Następny meldunek za</label>
+              <select id="sr-next"><option>30 min</option><option>1 godz</option><option>2 godz</option><option>Na żądanie</option></select>
+            </div>
+            <div class="sr-field"><label>Priorytet meldunku</label>
+              <select id="sr-prio"><option>ROUTINE</option><option>PRIORITY</option><option>IMMEDIATE</option><option>FLASH</option></select>
+            </div>
+          </div>
+          <div class="sr-field"><label>Dodatkowe uwagi</label><textarea id="sr-notes" placeholder="Inne istotne informacje..."></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sr-preview" id="sr-preview-box"></div>
+
+    <!-- Sent SITREPs -->
+    <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px">Wysłane meldunki</div>
+    <div id="sitrep-list">
+      <div class="sr-empty" id="sitrep-empty">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Brak wysłanych meldunków</p>
+      </div>
+    </div>
+  </div>
 
 <!-- STATUS BAR -->
 <div id="sbar">
@@ -2124,9 +2347,14 @@ function switchTab(t){
   tt.style.display=t==='tasks'?'block':'none';
   var ts=document.getElementById('tab-session-panel');
   if(ts)ts.style.display=t==='session'?'block':'none';
+  var tsr=document.getElementById('tab-sitrep-panel');
+  if(tsr)tsr.style.display=t==='sitrep'?'block':'none';
+  var tsrb=document.getElementById('tab-sitrep-btn');
+  if(tsrb)tsrb.classList.toggle('on',t==='sitrep');
   if(t==='map')setTimeout(function(){map.invalidateSize()},50);
   if(t==='tasks')renderTasks();
   if(t==='session')renderSessionStats();
+  if(t==='sitrep')initSitrepDTG();
 }
 
 /* ════════ TOOLS ════════ */
@@ -2745,6 +2973,7 @@ function connectToRoom(code){
   notify('Dołączono do pokoju '+code);
   listenForVoiceMessages(code);
   listenForPanic(code);
+  listenForSitreps(code);
   startPingDisplay();
 }
 
@@ -5235,6 +5464,302 @@ function setClockTZ(name, offset){
 // Start clock after functions defined
 tick();
 setInterval(tick, 1000);
+
+/* ════════════════════════════════════════
+   SITREP SYSTEM
+   ════════════════════════════════════════ */
+var srStatus = 'AMBER';
+var srContact = 'BRAK';
+var sentSitreps = [];
+
+function initSitrepDTG(){
+  var now = new Date();
+  var dtg = now.getDate().toString().padStart(2,'0')
+    + now.getHours().toString().padStart(2,'0')
+    + now.getMinutes().toString().padStart(2,'0')
+    + 'Z '
+    + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][now.getUTCMonth()]
+    + ' ' + now.getUTCFullYear();
+  document.getElementById('sr-dtg').value = dtg;
+  if(myLat){
+    document.getElementById('sr-pos').value = myLat.toFixed(4)+'°N '+myLng.toFixed(4)+'°E';
+  }
+}
+
+function selectSRStatus(btn, val){
+  srStatus = val;
+  document.querySelectorAll('[data-s]').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+}
+
+function selectSRContact(btn, val){
+  srContact = val;
+  document.querySelectorAll('[data-e]').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+}
+
+function buildSitrepText(){
+  var g = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var lines = [
+    '═══════════════════════════════',
+    'SITREP · '+profile.callsign,
+    'DTG: '+g('sr-dtg'),
+    'POS: '+g('sr-pos'),
+    'STATUS: '+srStatus,
+    '───────────────────────────────',
+    'SITUATION:',
+    g('sr-situation')||'—',
+    '───────────────────────────────',
+    'MISSION: '+g('sr-mission'),
+    'OBJ: '+g('sr-obj')+' ('+g('sr-pct')+'%)',
+    '───────────────────────────────',
+    'CONTACT: '+srContact,
+    g('sr-actions')?'ACTIONS: '+g('sr-actions'):'',
+    g('sr-enemy')?'ENEMY: '+g('sr-enemy'):'',
+    '───────────────────────────────',
+    'AMMO: '+g('sr-ammo')+'  SUPPLY: '+g('sr-supply')+'  FUEL/BAT: '+g('sr-fuel'),
+    'CAS: '+g('sr-cas'),
+    g('sr-needs')?'NEEDS: '+g('sr-needs'):'',
+    '───────────────────────────────',
+    'NEXT RPT: '+g('sr-next')+'  PRI: '+g('sr-prio'),
+    g('sr-notes')?'NOTES: '+g('sr-notes'):'',
+    '═══════════════════════════════'
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+function toggleSitrepPreview(){
+  var box = document.getElementById('sr-preview-box');
+  var btn = document.getElementById('sr-preview-btn');
+  if(box.classList.contains('show')){
+    box.classList.remove('show');
+    btn.textContent = 'Podgląd';
+  } else {
+    box.textContent = buildSitrepText();
+    box.classList.add('show');
+    btn.textContent = 'Ukryj';
+    box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+function sendSitrep(){
+  var text = buildSitrepText();
+  var sitrep = {
+    id: 'sr_'+Date.now(),
+    callsign: profile.callsign,
+    icon: profile.icon,
+    status: srStatus,
+    contact: srContact,
+    text: text,
+    ts: Date.now(),
+    dtg: document.getElementById('sr-dtg').value
+  };
+  sentSitreps.unshift(sitrep);
+  renderSitreps();
+
+  // Send to Firebase chat + sitrep node
+  if(currentRoom && firebaseReady){
+    fbDb.ref('rooms/'+currentRoom+'/sitreps/'+sitrep.id).set(sitrep);
+    fbDb.ref('rooms/'+currentRoom+'/chat').push({
+      peerId: myPeerId,
+      callsign: profile.callsign,
+      icon: '📋',
+      text: '📋 SITREP od '+profile.callsign+' · STATUS: '+srStatus+' · CONTACT: '+srContact,
+      ts: Date.now()
+    });
+  }
+  notify('📋 SITREP wysłany · STATUS: '+srStatus);
+
+  // Copy to clipboard
+  navigator.clipboard && navigator.clipboard.writeText(text).then(function(){
+    notify('📋 SITREP skopiowany do schowka');
+  }).catch(function(){});
+}
+
+function renderSitreps(){
+  var list = document.getElementById('sitrep-list');
+  var empty = document.getElementById('sitrep-empty');
+  list.querySelectorAll('.sitrep-card').forEach(function(el){el.remove()});
+  if(sentSitreps.length===0){if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+  sentSitreps.forEach(function(sr){
+    var card = document.createElement('div');
+    card.className = 'sitrep-card';
+    var t = new Date(sr.ts);
+    var timeStr = t.toLocaleString('pl-PL',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+    var statusColor = {GREEN:'var(--green)',AMBER:'var(--amber)',RED:'var(--red)',BLACK:'var(--t2)'}[sr.status]||'var(--t2)';
+    card.innerHTML =
+      '<div class="sitrep-card-head">'
+        +'<div class="sitrep-card-title">'+sr.callsign+' · <span style="color:'+statusColor+'">'+sr.status+'</span></div>'
+        +'<div class="sitrep-card-meta">'+timeStr+'</div>'
+      +'</div>'
+      +'<div class="sitrep-card-body"><pre style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;white-space:pre-wrap;color:var(--t2);margin:0">'+escapeHtml(sr.text)+'</pre></div>';
+    list.insertBefore(card, list.firstChild);
+  });
+}
+
+// Listen for incoming SITREPs from other operators
+function listenForSitreps(code){
+  if(!firebaseReady) return;
+  fbDb.ref('rooms/'+code+'/sitreps').limitToLast(20).on('child_added',function(snap){
+    var d=snap.val();
+    if(!d||d.callsign===profile.callsign) return;
+    sentSitreps.unshift(d);
+    renderSitreps();
+    notify('📋 SITREP od '+d.callsign+' · '+d.status);
+  });
+}
+
+/* ════════════════════════════════════════
+   WEATHER (Open-Meteo — FREE, no API key)
+   ════════════════════════════════════════ */
+var weatherData = null;
+var weatherFetching = false;
+
+function getWeatherIcon(code){
+  if(code===0) return '☀️';
+  if(code<=2) return '⛅';
+  if(code<=3) return '☁️';
+  if(code<=49) return '🌫';
+  if(code<=59) return '🌦';
+  if(code<=69) return '🌧';
+  if(code<=79) return '🌨';
+  if(code<=82) return '🌧';
+  if(code<=86) return '❄️';
+  if(code<=99) return '⛈';
+  return '🌡';
+}
+
+function getWeatherDesc(code){
+  var d={0:'Bezchmurnie',1:'Prawie bezchmurnie',2:'Częściowe zachmurzenie',3:'Zachmurzenie całkowite',
+    45:'Mgła',48:'Szroniejąca mgła',51:'Mżawka słaba',61:'Deszcz słaby',63:'Deszcz umiarkowany',
+    65:'Deszcz intensywny',71:'Śnieg słaby',73:'Śnieg umiarkowany',75:'Śnieg intensywny',
+    80:'Przelotny deszcz',81:'Przelotny deszcz silny',95:'Burza',99:'Burza z gradem'};
+  return d[code]||'—';
+}
+
+function tacticalWeatherAssessment(w){
+  var issues = [];
+  var wind = w.windspeed;
+  var vis = w.visibility/1000;
+  var code = w.weathercode;
+  var temp = w.temperature;
+
+  if(wind>50) issues.push('⚠️ Wiatr burzowy ('+wind+' km/h) — lot śmigłowców ZAGROŻONY');
+  else if(wind>30) issues.push('⚡ Wiatr silny ('+wind+' km/h) — loty ograniczone');
+  else if(wind>15) issues.push('💨 Wiatr umiarkowany ('+wind+' km/h)');
+
+  if(vis<1) issues.push('🌫 Widoczność krytyczna (<1km) — operacje naziemne ograniczone');
+  else if(vis<5) issues.push('🌫 Niska widoczność ('+vis.toFixed(1)+'km) — ostrożność');
+
+  if(code>=95) issues.push('⛈ BURZA — operacje lotnicze ZAKAZANE');
+  else if(code>=80) issues.push('🌧 Opady — teren podmokły, ruch utrudniony');
+  else if(code>=71) issues.push('❄️ Opady śniegu — przejezdność ograniczona');
+
+  if(temp<-10) issues.push('🥶 Mróz silny — ryzyko odmrożeń, sprzęt narażony');
+  else if(temp<0) issues.push('❄️ Temperatura poniżej zera — lód na drogach');
+  else if(temp>35) issues.push('🌡 Upał — ryzyko przegrzania, nawodnienie kluczowe');
+
+  if(issues.length===0) issues.push('✅ Warunki KORZYSTNE — standardowe procedury');
+  return issues.join('\n');
+}
+
+function fetchWeather(){
+  if(!myLat){ notify('Włącz lokalizację aby pobrać pogodę'); return; }
+  if(weatherFetching) return;
+  weatherFetching = true;
+
+  var lat = myLat, lng = myLng;
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng
+    +'&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,'
+    +'wind_speed_10m,wind_direction_10m,surface_pressure,cloud_cover,visibility'
+    +'&wind_speed_unit=kmh&timezone=auto';
+
+  fetch(url)
+    .then(function(r){return r.json()})
+    .then(function(data){
+      weatherFetching = false;
+      var curr = data.current;
+      weatherData = {
+        temperature: Math.round(curr.temperature_2m),
+        feelsLike:   Math.round(curr.apparent_temperature),
+        humidity:    curr.relative_humidity_2m,
+        windspeed:   Math.round(curr.wind_speed_10m),
+        winddir:     curr.wind_direction_10m,
+        pressure:    Math.round(curr.surface_pressure),
+        cloudcover:  curr.cloud_cover,
+        visibility:  curr.visibility||10000,
+        weathercode: curr.weather_code,
+        ts: Date.now()
+      };
+      // Reverse geocode location name
+      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=10')
+        .then(function(r){return r.json()})
+        .then(function(geo){
+          var city = (geo.address&&(geo.address.city||geo.address.town||geo.address.village||geo.address.county))||'';
+          weatherData.location = city;
+          updateWeatherUI(weatherData);
+        }).catch(function(){ updateWeatherUI(weatherData); });
+    })
+    .catch(function(e){
+      weatherFetching = false;
+      notify('Błąd pobierania pogody: '+e.message);
+    });
+}
+
+function windDirLabel(deg){
+  var dirs=['N','NE','E','SE','S','SW','W','NW'];
+  return dirs[Math.round(deg/45)%8];
+}
+
+function updateWeatherUI(w){
+  if(!w) return;
+  var icon = getWeatherIcon(w.weathercode);
+  var desc = getWeatherDesc(w.weathercode);
+
+  // Widget
+  var widget = document.getElementById('weather-widget');
+  if(widget) widget.style.display = 'block';
+  var el = function(id){ return document.getElementById(id); };
+  if(el('ww-icon')) el('ww-icon').textContent = icon;
+  if(el('ww-temp')) el('ww-temp').textContent = w.temperature+'°';
+  if(el('ww-desc')) el('ww-desc').textContent = desc;
+  if(el('ww-loc'))  el('ww-loc').textContent  = w.location||'';
+  if(el('ww-wind')) el('ww-wind').textContent = '💨 '+w.windspeed+'km/h '+windDirLabel(w.winddir);
+  if(el('ww-humid'))el('ww-humid').textContent= '💧 '+w.humidity+'%';
+
+  // Modal
+  if(el('wd-icon'))  el('wd-icon').textContent  = icon;
+  if(el('wd-temp'))  el('wd-temp').textContent  = w.temperature+'°C';
+  if(el('wd-desc'))  el('wd-desc').textContent  = desc;
+  if(el('wd-loc'))   el('wd-loc').textContent   = w.location||'';
+  if(el('wd-feels')) el('wd-feels').textContent = w.feelsLike+'°C';
+  if(el('wd-wind'))  el('wd-wind').textContent  = w.windspeed+'km/h '+windDirLabel(w.winddir);
+  if(el('wd-humid')) el('wd-humid').textContent = w.humidity+'%';
+  if(el('wd-vis'))   el('wd-vis').textContent   = (w.visibility/1000).toFixed(1)+'km';
+  if(el('wd-press')) el('wd-press').textContent = w.pressure+'hPa';
+  if(el('wd-cloud')) el('wd-cloud').textContent = w.cloudcover+'%';
+  if(el('wd-tactical')) el('wd-tactical').innerHTML = '<b>Ocena taktyczna:</b>\n'+tacticalWeatherAssessment(w).replace(/\n/g,'<br>');
+  if(el('wd-updated'))  el('wd-updated').textContent = 'Aktualizacja: '+new Date(w.ts).toLocaleTimeString('pl-PL');
+}
+
+function openWeatherModal(){
+  if(!weatherData) fetchWeather();
+  document.getElementById('weather-modal').classList.add('open');
+}
+
+// Auto fetch weather when location becomes available
+var _weatherWatchInterval = setInterval(function(){
+  if(myLat && !weatherData){
+    fetchWeather();
+    clearInterval(_weatherWatchInterval);
+  }
+}, 3000);
+
+// Refresh weather every 10 minutes
+setInterval(function(){
+  if(myLat && weatherData) fetchWeather();
+}, 10*60*1000);
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
