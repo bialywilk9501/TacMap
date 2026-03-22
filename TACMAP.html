@@ -2,7 +2,7 @@
 <html lang="pl" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0e1117">
@@ -57,6 +57,16 @@
   });
 })();
 </script>
+<script>
+/* ── Viewport height fix for mobile browsers ── */
+function setVH(){
+  var vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+window.addEventListener('orientationchange', function(){ setTimeout(setVH, 200); });
+</script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -87,9 +97,9 @@ html,body{height:100%;overflow:hidden;touch-action:none}
   --shadow:0 4px 20px rgba(0,0,0,.12);
 }
 
-:root{--r:8px;--r2:12px;--topbar-h:58px;--tabbar-h:40px;--panel-w:68px;--sbar-h:30px}
+:root{--r:8px;--r2:12px;--topbar-h:52px;--tabbar-h:38px;--panel-w:68px;--sbar-h:28px}
 
-#wrap{display:flex;flex-direction:column;height:100vh;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--t1);overflow:hidden;transition:background .2s,color .2s}
+#wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;height:calc(var(--vh,1vh)*100);background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--t1);overflow:hidden;transition:background .2s,color .2s}
 
 /* ── TOPBAR ── */
 #topbar{height:var(--topbar-h);background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;flex-shrink:0;z-index:900;transition:background .2s,border-color .2s}
@@ -666,7 +676,7 @@ html,body{height:100%;overflow:hidden;touch-action:none}
 
 /* ── LANDSCAPE TOPBAR FIX ── */
 @media (orientation: landscape) and (max-height: 500px) {
-  #topbar{height:38px !important;padding:0}
+  #topbar{height:36px !important;padding:0}
   #tb-brand{padding:0 10px;min-width:auto;gap:6px}
   #tb-brand .logo{font-size:11px;letter-spacing:2px}
   #tb-center{padding:0 8px;gap:6px}
@@ -757,7 +767,7 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 #sync-pill:hover{background:var(--s2);color:var(--t1)}
 
 /* topbar slimmer now that action bar exists */
-#topbar{height:48px}
+#topbar{height:var(--topbar-h)}
 #tb-right{gap:6px;padding:0 10px}
 
 /* PING display */
@@ -788,8 +798,8 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 .vm-bar{width:3px;border-radius:2px;background:var(--acc);flex-shrink:0;transition:height .1s}
 
 @media(max-width:700px){
-  :root{--topbar-h:46px}
-  #topbar{height:46px}
+  :root{--topbar-h:44px}
+  #topbar{height:44px}
   #mcoords,#clock{display:none}
   #tb-right{padding:0 6px;gap:4px;overflow-x:auto}
   #battery-widget{display:none!important}
@@ -976,6 +986,18 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 }
 #wakelock-btn:hover{background:var(--s2);color:var(--t1)}
 #wakelock-btn.active{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1)}
+
+/* Android Chrome address bar fix */
+@media (max-width: 700px) {
+  body {
+    /* Add small padding so topbar isn't hidden under browser UI */
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  #wrap {
+    height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+}
 </style>
 </head>
 <body>
