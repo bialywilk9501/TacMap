@@ -928,6 +928,54 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   display:none;
 }
 #auth-badge:hover{color:#8a95a8;border-color:#344060}
+
+/* ── CHAT IMAGE ── */
+.msg-img{
+  max-width:220px;max-height:220px;border-radius:8px;
+  cursor:pointer;display:block;object-fit:cover;
+  border:1px solid var(--b1);margin-top:4px;
+  transition:opacity .15s;
+}
+.msg-img:hover{opacity:.85}
+#chat-img-btn{
+  width:36px;height:36px;border-radius:8px;
+  border:1px solid var(--b1);background:transparent;
+  color:var(--t2);cursor:pointer;display:flex;
+  align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+}
+#chat-img-btn:hover{background:var(--s2);color:var(--t1);border-color:var(--b2)}
+#chat-img-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+/* image preview before send */
+#chat-img-preview-row{
+  display:none;padding:8px 12px;border-top:1px solid var(--b1);
+  background:var(--s1);align-items:center;gap:8px;
+}
+#chat-img-preview-row.show{display:flex}
+#chat-img-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;border:1px solid var(--b1)}
+#chat-img-name{flex:1;font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#chat-img-remove{width:24px;height:24px;border-radius:5px;border:1px solid var(--b1);background:transparent;cursor:pointer;color:var(--t3);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#chat-img-remove:hover{background:var(--red-bg);color:var(--red)}
+/* fullscreen image viewer */
+#img-viewer{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:9997;display:none;align-items:center;justify-content:center;
+  cursor:zoom-out;
+}
+#img-viewer.open{display:flex}
+#img-viewer img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px}
+#img-viewer-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── WAKE LOCK INDICATOR ── */
+#wakelock-btn{
+  width:34px;height:34px;border-radius:var(--r);
+  border:1px solid var(--b1);background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--t3);transition:all .15s;flex-shrink:0;font-size:14px;
+  title:'Zapobiegaj wygaszaniu ekranu';
+}
+#wakelock-btn:hover{background:var(--s2);color:var(--t1)}
+#wakelock-btn.active{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1)}
 </style>
 </head>
 <body>
@@ -1030,6 +1078,7 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
       <svg id="fs-icon-enter" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
       <svg id="fs-icon-exit" viewBox="0 0 24 24" style="display:none"><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3"/></svg>
     </button>
+    <button id="wakelock-btn" onclick="toggleWakeLock()" title="Zapobiegaj wygaszaniu ekranu">☀️</button>
     <button id="theme-toggle" onclick="toggleTheme()" title="Motyw">🌙</button>
     <div id="op-badge" onclick="openOpModal()">
       <div class="op-icon-box" id="badge-icon">🪖</div>
@@ -1558,10 +1607,24 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <div id="chat-msgs">
     <div id="chat-no-room" style="display:block">Dołącz do pokoju synchronizacji aby korzystać z czatu.</div>
   </div>
+  <div id="chat-img-preview-row">
+    <img id="chat-img-thumb" src="" alt=""/>
+    <span id="chat-img-name">zdjęcie.jpg</span>
+    <button id="chat-img-remove" onclick="removeChatImg()">×</button>
+  </div>
   <div id="chat-input-row">
+    <button id="chat-img-btn" onclick="document.getElementById('chat-img-file').click()" title="Wyślij zdjęcie">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </button>
+    <input type="file" id="chat-img-file" accept="image/*" style="display:none" onchange="handleChatImg(event)"/>
     <input type="text" id="chat-input" placeholder="Wpisz wiadomość…" maxlength="300" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
     <button id="chat-send" onclick="sendChat()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
   </div>
+</div>
+<!-- IMAGE VIEWER -->
+<div id="img-viewer" onclick="closeImgViewer()">
+  <button id="img-viewer-close" onclick="closeImgViewer()">×</button>
+  <img id="img-viewer-img" src="" alt=""/>
 </div>
 
 <!-- HUD EDITOR MODAL -->
@@ -2973,24 +3036,56 @@ function updateChatBadge(){
   }
 }
 
+var chatPendingImg = null;
+
+function handleChatImg(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 500*1024){ notify('Zdjęcie za duże — max 500KB'); return; }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    chatPendingImg = ev.target.result;
+    var thumb = document.getElementById('chat-img-thumb');
+    var name  = document.getElementById('chat-img-name');
+    var row   = document.getElementById('chat-img-preview-row');
+    thumb.src = chatPendingImg;
+    name.textContent = file.name;
+    row.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removeChatImg(){
+  chatPendingImg = null;
+  document.getElementById('chat-img-preview-row').classList.remove('show');
+  document.getElementById('chat-img-thumb').src = '';
+}
+
 function sendChat(){
   var input = document.getElementById('chat-input');
   var text = input.value.trim();
-  if(!text) return;
+  if(!text && !chatPendingImg) return;
   if(!currentRoom || !firebaseReady){
     notify('Dołącz do pokoju synchronizacji aby pisać na czacie');
     return;
+  }
+  // Size check for image
+  if(chatPendingImg && chatPendingImg.length > 700*1024){
+    notify('Zdjęcie za duże po kompresji — spróbuj mniejszego'); return;
   }
   var msg = {
     peerId: myPeerId,
     callsign: profile.callsign,
     icon: profile.icon,
-    text: text,
+    text: text || '',
     ts: Date.now()
   };
+  if(chatPendingImg) msg.img = chatPendingImg;
   fbDb.ref('rooms/'+currentRoom+'/chat').push(msg);
   input.value = '';
   input.focus();
+  removeChatImg();
 }
 
 function renderChatMsg(d, isMine){
@@ -3008,10 +3103,30 @@ function renderChatMsg(d, isMine){
   var t = new Date(d.ts);
   var timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
 
-  row.innerHTML =
-    '<div class="msg-meta">' + (d.icon||'🪖') + ' <b>' + (d.callsign||'???') + '</b></div>' +
-    '<div class="msg-bubble">' + escapeHtml(d.text) + '</div>' +
-    '<div class="msg-time">' + timeStr + '</div>';
+  var meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = (d.icon||'🪖') + ' <b>' + escapeHtml(d.callsign||'???') + '</b>';
+  row.appendChild(meta);
+
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  if(d.text) bubble.textContent = d.text;
+
+  if(d.img){
+    var img = document.createElement('img');
+    img.className = 'msg-img';
+    img.src = d.img;
+    img.alt = 'Zdjęcie';
+    img.onclick = function(){ openImgViewer(d.img); };
+    bubble.appendChild(img);
+  }
+  row.appendChild(bubble);
+
+  var timeEl = document.createElement('div');
+  timeEl.className = 'msg-time';
+  timeEl.textContent = timeStr;
+  row.appendChild(timeEl);
 
   msgs.appendChild(row);
   msgs.scrollTop = msgs.scrollHeight;
@@ -3021,7 +3136,8 @@ function renderChatMsg(d, isMine){
       chatUnreadCount++;
       updateChatBadge();
     }
-    notify('💬 ' + (d.callsign||'???') + ': ' + d.text.slice(0,40) + (d.text.length>40?'…':''));
+    var notifText = d.img ? '📷 ' + (d.callsign||'???') + ' wysłał zdjęcie' : '💬 ' + (d.callsign||'???') + ': ' + (d.text||'').slice(0,40) + ((d.text||'').length>40?'…':'');
+    notify(notifText);
   }
 }
 
@@ -4409,6 +4525,88 @@ window.addEventListener('load', function(){
   // Small delay to let loading screen finish
   setTimeout(initAuth, 800);
 });
+
+/* ════════════════════════════════════════
+   IMAGE VIEWER
+   ════════════════════════════════════════ */
+function openImgViewer(src){
+  var v = document.getElementById('img-viewer');
+  var img = document.getElementById('img-viewer-img');
+  if(!v||!img) return;
+  img.src = src;
+  v.classList.add('open');
+}
+function closeImgViewer(){
+  var v = document.getElementById('img-viewer');
+  if(v) v.classList.remove('open');
+}
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    closeImgViewer();
+  }
+});
+
+/* ════════════════════════════════════════
+   WAKE LOCK — zapobiegaj wygaszaniu ekranu
+   ════════════════════════════════════════ */
+var wakeLock = null;
+var wakeLockActive = false;
+
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLockActive = true;
+      wakeLock.addEventListener('release', function(){
+        wakeLockActive = false;
+        updateWakeLockBtn();
+      });
+      updateWakeLockBtn();
+      notify('☀️ Ekran nie będzie wygaszany');
+    } else {
+      notify('Wake Lock niedostępny w tej przeglądarce');
+    }
+  }catch(e){
+    notify('Nie można zablokować wygaszania: ' + e.message);
+  }
+}
+
+function releaseWakeLock(){
+  if(wakeLock){
+    wakeLock.release();
+    wakeLock = null;
+  }
+  wakeLockActive = false;
+  updateWakeLockBtn();
+  notify('Ekran może się wygaszać normalnie');
+}
+
+function toggleWakeLock(){
+  if(wakeLockActive) releaseWakeLock();
+  else requestWakeLock();
+}
+
+function updateWakeLockBtn(){
+  var btn = document.getElementById('wakelock-btn');
+  if(!btn) return;
+  btn.classList.toggle('active', wakeLockActive);
+  btn.title = wakeLockActive ? 'Ekran zablokowany (kliknij aby zwolnić)' : 'Zapobiegaj wygaszaniu ekranu';
+  btn.textContent = wakeLockActive ? '🔆' : '☀️';
+}
+
+// Re-acquire wake lock when page becomes visible again (e.g. after screen off)
+document.addEventListener('visibilitychange', function(){
+  if(wakeLockActive && document.visibilityState === 'visible'){
+    requestWakeLock();
+  }
+});
+
+// Auto-enable wake lock when location tracking is active
+var _origDoLocate = doLocate;
+doLocate = function(){
+  _origDoLocate();
+  if(!wakeLockActive) requestWakeLock();
+};
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
