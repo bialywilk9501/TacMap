@@ -1081,6 +1081,34 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
 .panic-cancel{padding:14px 32px;border-radius:12px;border:2px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .15s}
 .panic-cancel:hover{background:rgba(255,255,255,.15)}
 .panic-status{font-size:12px;color:rgba(255,255,255,.6);text-align:center;max-width:280px;line-height:1.6}
+
+/* ── FOLLOW LOCATION BUTTON ── */
+#follow-btn{
+  position:absolute;bottom:160px;right:14px;z-index:600;
+  width:38px;height:38px;border-radius:10px;
+  background:var(--s1);border:1px solid var(--b1);
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);transition:all .15s;font-size:16px;
+}
+#follow-btn:hover{background:var(--s2);border-color:var(--b2)}
+#follow-btn.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc)}
+@media(max-width:700px){
+  #follow-btn{bottom:170px;right:10px;width:36px;height:36px}
+}
+
+/* ── CLOCK SETTINGS ── */
+#clock{cursor:pointer;user-select:none;padding:2px 6px;border-radius:5px;transition:background .15s}
+#clock:hover{background:var(--s2)}
+.tz-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:260px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tz-card{
+  padding:8px 10px;border-radius:8px;border:1.5px solid var(--b1);
+  background:var(--s2);cursor:pointer;transition:all .12s;
+}
+.tz-card:hover{border-color:var(--b2);background:var(--s3)}
+.tz-card.on{border-color:var(--acc);background:var(--acc-bg)}
+.tz-name{font-size:11px;font-weight:600;color:var(--t1)}
+.tz-offset{font-size:9px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.tz-time{font-size:10px;color:var(--t2);font-family:'IBM Plex Mono',monospace;margin-top:3px;font-weight:600}
 </style>
 </head>
 <body>
@@ -1165,7 +1193,7 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
       <span id="ping-val">—ms</span>
     </div>
     <div class="tb-spacer"></div>
-    <div id="clock"></div>
+    <div id="clock" onclick="openTZModal()" title="Kliknij aby zmienić strefę czasową"></div>
   </div>
   <div id="tb-right">
     <!-- battery + fullscreen always visible -->
@@ -1403,6 +1431,9 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
   <div class="panic-status" id="panic-status">Wysyłanie alertu do drużyny...</div>
   <button class="panic-cancel" onclick="cancelPanic()">✕ Anuluj alarm</button>
 </div>
+
+<!-- FOLLOW LOCATION BUTTON -->
+<button id="follow-btn" onclick="toggleFollow()" title="Śledź moją lokalizację">📍</button>
 
 <!-- COMPASS WIDGET -->
 <div id="compass-widget" onclick="toggleAzimuthPanel()" title="Kliknij aby otworzyć narzędzie azymutu">
@@ -1927,6 +1958,31 @@ body.hud-no-labels .casevac-lbl { display:none !important; }
     </div>
   </div>
 </div>
+
+<!-- CLOCK TIMEZONE MODAL -->
+<div class="overlay" id="tz-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <div class="modal-title">🕐 Strefa czasowa zegara</div>
+      <button class="modal-close" onclick="closeModal('tz-overlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Aktualny czas</label>
+        <div id="tz-current-time" style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--t1);margin-bottom:4px">--:--:--</div>
+        <div id="tz-current-name" style="font-size:11px;color:var(--t3)">UTC</div>
+      </div>
+      <div class="field">
+        <label>Wybierz strefę</label>
+        <div class="tz-grid" id="tz-grid"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-c" onclick="setClockTZ('UTC',0)">Resetuj do UTC</button>
+      <button class="btn-ok" onclick="closeModal('tz-overlay')">Gotowe</button>
+    </div>
+  </div>
+</div>
 <div id="notif"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2052,8 +2108,7 @@ map.on(L.Draw.Event.DELETED,function(e){
 });
 
 /* ════════ CLOCK ════════ */
-function tick(){var n=new Date();document.getElementById('clock').textContent=n.getUTCHours().toString().padStart(2,'0')+':'+n.getUTCMinutes().toString().padStart(2,'0')+':'+n.getUTCSeconds().toString().padStart(2,'0')+' UTC'}
-tick();setInterval(tick,1000);
+/* tick() and setInterval moved below function definition */
 
 /* ════════ TABS ════════ */
 function switchTab(t){
@@ -2182,22 +2237,29 @@ function doClear(){drawn.clearLayers();shapes=0;document.getElementById('sshapes
 var locWatchId=null;
 function doLocate(){
   if(!navigator.geolocation){notify('Geolokalizacja niedostępna');return}
-  // Show immediate feedback
   notify('📡 Pobieranie lokalizacji...');
-  notify('Ustalanie pozycji…');
   if(locWatchId!==null){navigator.geolocation.clearWatch(locWatchId)}
+  // Auto wake lock
+  if(typeof wakeLockActive!=='undefined' && !wakeLockActive) requestWakeLock();
   locWatchId=navigator.geolocation.watchPosition(function(p){
     myLat=p.coords.latitude;myLng=p.coords.longitude;
     var acc=Math.round(p.coords.accuracy);
     if(locMark)map.removeLayer(locMark);if(locCircle)map.removeLayer(locCircle);
     locMark=L.marker([myLat,myLng],{icon:makeOpIcon(profile,compassHeading),zIndexOffset:1000}).addTo(map).bindPopup(makeOpPopup(profile,myLat,myLng,acc));
-    // Add pulsing ring marker behind the operator
     if(window._locRingMark){try{map.removeLayer(window._locRingMark)}catch(e){}}
     var ringIcon=L.divIcon({className:'',html:'<div class="loc-ring"></div>',iconSize:[20,20],iconAnchor:[10,10]});
     window._locRingMark=L.marker([myLat,myLng],{icon:ringIcon,zIndexOffset:999,interactive:false}).addTo(map);
     locCircle=L.circle([myLat,myLng],{radius:acc,color:'#6b7280',weight:1,fillColor:'#6b7280',fillOpacity:.06,dashArray:'4 6'}).addTo(map);
     document.getElementById('sloc-wrap').style.display='inline';
     document.getElementById('slocv').textContent=myLat.toFixed(4)+'N '+myLng.toFixed(4)+'E';
+    // Show follow button
+    var fb=document.getElementById('follow-btn');if(fb)fb.style.display='flex';
+    // Follow mode — pan map
+    if(typeof followActive!=='undefined' && followActive && !followMoving){
+      followMoving=true;
+      map.panTo([myLat,myLng],{animate:true,duration:.5});
+      setTimeout(function(){followMoving=false;},600);
+    }
     if(currentRoom)broadcastPosition();
   },function(err){var m={1:'Odmówiono dostępu',2:'Sygnał niedostępny',3:'Timeout'};notify('ERR: '+(m[err.code]||'Błąd GPS'))},{enableHighAccuracy:true,timeout:15000,maximumAge:5000});
   navigator.geolocation.getCurrentPosition(function(p){
@@ -4756,11 +4818,7 @@ document.addEventListener('visibilitychange', function(){
 });
 
 // Auto-enable wake lock when location tracking is active
-var _origDoLocate = doLocate;
-doLocate = function(){
-  _origDoLocate();
-  if(!wakeLockActive) requestWakeLock();
-};
+// Wake lock auto-enable on locate (called directly in doLocate)
 
 /* ════════════════════════════════════════
    ROUTE PLANNING (OpenRouteService free API)
@@ -4923,7 +4981,6 @@ function clearRoute(){
   setMode('Nawigacja');
 }
 function closeRoutePanel(){
-  clearRoute();
   document.getElementById('route-panel').classList.remove('open');
 }
 
@@ -5043,6 +5100,141 @@ function listenForPanic(code){
     switchTab('map');
   });
 }
+
+/* ════════════════════════════════════════
+   FOLLOW LOCATION
+   ════════════════════════════════════════ */
+var followActive = false;
+var followMoving = false;
+
+function toggleFollow(){
+  followActive = !followActive;
+  var btn = document.getElementById('follow-btn');
+  btn.classList.toggle('active', followActive);
+  btn.textContent = followActive ? '🔒' : '📍';
+  btn.title = followActive ? 'Śledzenie aktywne — kliknij aby wyłączyć' : 'Śledź moją lokalizację';
+  if(followActive){
+    if(myLat) map.flyTo([myLat,myLng], map.getZoom()<14?15:map.getZoom(), {duration:.8});
+    notify('📍 Śledzenie pozycji włączone');
+  } else {
+    notify('Śledzenie wyłączone');
+  }
+}
+
+// When user drags map — disable follow
+map.on('dragstart', function(){
+  if(followActive){
+    followActive = false;
+    var btn = document.getElementById('follow-btn');
+    btn.classList.remove('active');
+    btn.textContent = '📍';
+  }
+});
+
+// Patch doLocate to show follow button and center on position
+// Follow button shown via _patchLocate interval below
+
+// Override watchPosition callback to pan map when following
+var _origLocWatch = navigator.geolocation.watchPosition.bind(navigator.geolocation);
+// We patch the position update in doLocate instead
+// Check follow in broadcastPosition which is called on every position update
+// Follow is handled in doLocate watchPosition callback directly
+
+// follow button shown inside watchPosition callback
+
+/* ════════════════════════════════════════
+   CLOCK TIMEZONE
+   ════════════════════════════════════════ */
+var clockTZ = {name:'UTC', offset:0};
+
+var TZ_ZONES = [
+  {name:'UTC',        label:'UTC',              offset:0},
+  {name:'CET',        label:'Europa Środkowa',  offset:1},
+  {name:'CEST',       label:'Europa Środkowa+', offset:2},
+  {name:'EET',        label:'Europa Wschodnia', offset:3},
+  {name:'MSK',        label:'Moskwa',           offset:3},
+  {name:'GMT',        label:'Londyn/GMT',       offset:0},
+  {name:'BST',        label:'Londyn letni',     offset:1},
+  {name:'EST',        label:'USA Wschód',       offset:-5},
+  {name:'EDT',        label:'USA Wschód+',      offset:-4},
+  {name:'CST',        label:'USA Środek',       offset:-6},
+  {name:'MST',        label:'USA Góry',         offset:-7},
+  {name:'PST',        label:'USA Zachód',       offset:-8},
+  {name:'PDT',        label:'USA Zachód+',      offset:-7},
+  {name:'JST',        label:'Japonia',          offset:9},
+  {name:'CST+8',      label:'Chiny',            offset:8},
+  {name:'IST',        label:'Indie',            offset:5.5},
+  {name:'AEST',       label:'Australia Wsch.',  offset:10},
+  {name:'Lokalny',    label:'Czas lokalny',     offset:null},
+];
+
+function tick(){
+  var n = new Date();
+  var timeStr;
+  if(clockTZ.offset === null){
+    // Local time
+    timeStr = n.getHours().toString().padStart(2,'0')+':'+
+              n.getMinutes().toString().padStart(2,'0')+':'+
+              n.getSeconds().toString().padStart(2,'0')+' LOC';
+  } else {
+    var utcMs = n.getTime() + n.getTimezoneOffset()*60000;
+    var tzMs  = utcMs + clockTZ.offset*3600000;
+    var tzD   = new Date(tzMs);
+    timeStr = tzD.getHours().toString().padStart(2,'0')+':'+
+              tzD.getMinutes().toString().padStart(2,'0')+':'+
+              tzD.getSeconds().toString().padStart(2,'0')+' '+clockTZ.name;
+  }
+  var el = document.getElementById('clock');
+  if(el) el.textContent = timeStr;
+  // Update tz modal if open
+  var tzTime = document.getElementById('tz-current-time');
+  if(tzTime) tzTime.textContent = timeStr;
+}
+
+function openTZModal(){
+  buildTZGrid();
+  document.getElementById('tz-current-name').textContent =
+    clockTZ.name + (clockTZ.offset!==null ? ' (UTC'+(clockTZ.offset>=0?'+':'')+clockTZ.offset+')' : ' (lokalny)');
+  document.getElementById('tz-overlay').classList.add('open');
+}
+
+function buildTZGrid(){
+  var grid = document.getElementById('tz-grid');
+  grid.innerHTML = '';
+  var now = new Date();
+  TZ_ZONES.forEach(function(tz){
+    var card = document.createElement('div');
+    card.className = 'tz-card' + (tz.name===clockTZ.name?' on':'');
+    // Compute current time in this zone
+    var timeStr;
+    if(tz.offset===null){
+      timeStr = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    } else {
+      var utcMs = now.getTime()+now.getTimezoneOffset()*60000;
+      var d = new Date(utcMs+tz.offset*3600000);
+      timeStr = d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+    }
+    var offStr = tz.offset===null ? 'Lokalny' : 'UTC'+(tz.offset>=0?'+':'')+tz.offset;
+    card.innerHTML = '<div class="tz-name">'+tz.label+'</div>'
+      +'<div class="tz-offset">'+offStr+'</div>'
+      +'<div class="tz-time">'+timeStr+'</div>';
+    card.onclick = (function(t){ return function(){
+      setClockTZ(t.name, t.offset);
+      buildTZGrid();
+      closeModal('tz-overlay');
+    };})(tz);
+    grid.appendChild(card);
+  });
+}
+
+function setClockTZ(name, offset){
+  clockTZ = {name:name, offset:offset};
+  tick();
+  notify('🕐 Strefa czasowa: '+name+(offset!==null?' (UTC'+(offset>=0?'+':'')+offset+')':''));
+}
+// Start clock after functions defined
+tick();
+setInterval(tick, 1000);
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
