@@ -343,6 +343,65 @@ html,body{height:100%;overflow:hidden;touch-action:none}
   #compass-widget{width:72px;height:72px;bottom:112px;right:10px}
   #azimuth-panel{bottom:192px;right:10px;min-width:160px}
 }
+
+/* ── CHAT PANEL ── */
+#chat-panel{
+  position:fixed;bottom:42px;left:50%;transform:translateX(-50%);
+  width:min(420px,96vw);background:var(--s1);
+  border:1px solid var(--b1);border-radius:var(--r2);
+  box-shadow:var(--shadow);z-index:700;
+  display:none;flex-direction:column;overflow:hidden;
+  max-height:min(480px,60vh);
+  transition:background .2s;
+}
+#chat-panel.open{display:flex}
+#chat-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-bottom:1px solid var(--b1);
+  background:var(--s1);flex-shrink:0;
+}
+#chat-title{font-size:12px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:7px}
+#chat-unread{
+  background:var(--red);color:#fff;font-size:9px;font-weight:700;
+  padding:1px 6px;border-radius:10px;display:none;
+}
+#chat-close{width:26px;height:26px;border-radius:6px;border:1px solid var(--b1);background:transparent;cursor:pointer;color:var(--t2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s}
+#chat-close:hover{background:var(--s2)}
+#chat-msgs{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch}
+#chat-msgs::-webkit-scrollbar{width:4px}
+#chat-msgs::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.msg-row{display:flex;flex-direction:column;max-width:82%}
+.msg-row.mine{align-self:flex-end;align-items:flex-end}
+.msg-row.theirs{align-self:flex-start;align-items:flex-start}
+.msg-meta{font-size:9px;color:var(--t3);margin-bottom:2px;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:4px}
+.msg-bubble{padding:7px 11px;border-radius:10px;font-size:12px;line-height:1.5;word-break:break-word}
+.msg-row.mine .msg-bubble{background:var(--acc);color:#fff;border-bottom-right-radius:3px}
+.msg-row.theirs .msg-bubble{background:var(--s2);color:var(--t1);border:1px solid var(--b1);border-bottom-left-radius:3px}
+.msg-time{font-size:8px;color:var(--t3);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+#chat-no-room{padding:24px;text-align:center;font-size:12px;color:var(--t3)}
+#chat-input-row{display:flex;gap:7px;padding:10px 12px;border-top:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
+#chat-input{flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--b1);background:var(--bg);font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--t1);outline:none;transition:border .1s}
+#chat-input:focus{border-color:var(--acc)}
+#chat-send{width:36px;height:36px;border-radius:8px;border:none;background:var(--acc);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+#chat-send:hover{background:var(--acc2)}
+#chat-send svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5}
+
+/* chat toggle button in topbar */
+#chat-toggle-btn{position:relative}
+#chat-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--red);color:#fff;font-size:8px;font-weight:700;
+  width:16px;height:16px;border-radius:50%;display:none;
+  align-items:center;justify-content:center;border:2px solid var(--s1);
+}
+
+/* ── DIRECTION CONE (SVG overlay on operator marker) ── */
+.op-cone-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.op-cone-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-68%) rotate(0deg);pointer-events:none;transition:transform .5s cubic-bezier(.25,.46,.45,.94);z-index:1}
+
+@media(max-width:700px){
+  #chat-panel{bottom:108px;width:min(380px,94vw);max-height:50vh}
+}
 </style>
 </head>
 <body>
@@ -363,6 +422,11 @@ html,body{height:100%;overflow:hidden;touch-action:none}
       <span id="sync-code-display"></span>
     </div>
 
+    <button id="chat-toggle-btn" class="hbtn" onclick="toggleChat()" title="Czat drużyny">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Czat
+      <span id="chat-badge" style="display:none;align-items:center;justify-content:center">0</span>
+    </button>
     <button id="pwa-install-btn" onclick="installPWA()" title="Zainstaluj aplikację" style="display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--r);border:1px solid var(--b1);background:transparent;font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:500;cursor:pointer;color:var(--t2);transition:all .15s;white-space:nowrap;flex-shrink:0">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Zainstaluj
@@ -717,6 +781,24 @@ html,body{height:100%;overflow:hidden;touch-action:none}
   </div>
 </div>
 
+
+<!-- CHAT PANEL -->
+<div id="chat-panel">
+  <div id="chat-header">
+    <div id="chat-title">
+      💬 Czat drużyny
+      <span id="chat-unread"></span>
+    </div>
+    <button id="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div id="chat-msgs">
+    <div id="chat-no-room" style="display:block">Dołącz do pokoju synchronizacji aby korzystać z czatu.</div>
+  </div>
+  <div id="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Wpisz wiadomość…" maxlength="300" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button id="chat-send" onclick="sendChat()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
 <div id="notif"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -947,7 +1029,7 @@ function doLocate(){
     myLat=p.coords.latitude;myLng=p.coords.longitude;
     var acc=Math.round(p.coords.accuracy);
     if(locMark)map.removeLayer(locMark);if(locCircle)map.removeLayer(locCircle);
-    locMark=L.marker([myLat,myLng],{icon:makeOpIcon(profile)}).addTo(map).bindPopup(makeOpPopup(profile,myLat,myLng,acc));
+    locMark=L.marker([myLat,myLng],{icon:makeOpIcon(profile,compassHeading)}).addTo(map).bindPopup(makeOpPopup(profile,myLat,myLng,acc));
     locCircle=L.circle([myLat,myLng],{radius:acc,color:'#6b7280',weight:1,fillColor:'#6b7280',fillOpacity:.06,dashArray:'4 6'}).addTo(map);
     document.getElementById('sloc-wrap').style.display='inline';
     document.getElementById('slocv').textContent=myLat.toFixed(4)+'N '+myLng.toFixed(4)+'E';
@@ -958,7 +1040,7 @@ function doLocate(){
     notify('Pozycja: '+profile.callsign+' · ±'+Math.round(p.coords.accuracy)+'m');
   },null,{enableHighAccuracy:true,timeout:10000});
 }
-function updateLocMarker(){if(locMark&&myLat){locMark.setIcon(makeOpIcon(profile));locMark.setPopupContent(makeOpPopup(profile,myLat,myLng,0))}}
+function updateLocMarker(){if(locMark&&myLat){locMark.setIcon(makeOpIcon(profile,compassHeading));locMark.setPopupContent(makeOpPopup(profile,myLat,myLng,0))}}
 
 /* ════════ MARKER STYLES ════════ */
 var MARKER_STYLES=[{id:'circle',label:'Koło',preview:'⬤'},{id:'square',label:'Kwadrat',preview:'⬛'},{id:'diamond',label:'Romb',preview:'◆'},{id:'cross',label:'Krzyż',preview:'✚'},{id:'shield',label:'Tarcza',preview:'🛡'},{id:'star',label:'Gwiazda',preview:'★'}];
@@ -973,11 +1055,19 @@ function mShapeCSS(style,bg,sz){
   if(style==='star')return base+'border-radius:50%;animation:opulse 2.5s infinite;';
   return base+'border-radius:50%;animation:opulse 2.5s infinite;';
 }
-function makeOpIcon(p){
+function makeOpIcon(p, hdg){
   var bg='#4b5563';
   var inner=p.icon;
   if(p.markerStyle==='diamond')inner='<div style="transform:rotate(-45deg)">'+p.icon+'</div>';
-  return L.divIcon({className:'',html:'<div class="op-mwrap"><div style="'+mShapeCSS(p.markerStyle||'circle',bg)+'">'+inner+'</div><div class="op-mlabel">'+p.callsign+'</div></div>',iconSize:[44,60],iconAnchor:[22,60]});
+  var coneHdg=hdg||0;
+  var coneSVG='<svg class="op-cone-svg" width="60" height="60" viewBox="0 0 60 60" style="transform:translate(-50%,-68%) rotate('+coneHdg+'deg)">'
+    +'<defs><radialGradient id="cg" cx="50%" cy="100%" r="100%">'
+    +'<stop offset="0%" stop-color="#6b7280" stop-opacity="0.55"/>'
+    +'<stop offset="100%" stop-color="#6b7280" stop-opacity="0"/>'
+    +'</radialGradient></defs>'
+    +'<path d="M30 30 L8 2 A32 32 0 0 1 52 2 Z" fill="url(#cg)" stroke="#9ca3af" stroke-width="0.8" stroke-opacity="0.6"/>'
+    +'</svg>';
+  return L.divIcon({className:'',html:'<div class="op-cone-wrap op-mwrap">'+coneSVG+'<div style="'+mShapeCSS(p.markerStyle||'circle',bg)+'">'+inner+'</div><div class="op-mlabel">'+p.callsign+'</div></div>',iconSize:[60,70],iconAnchor:[30,70]});
 }
 function makeOpPopup(p,lat,lng,acc){
   return '<div style="padding:4px 2px"><div style="font-weight:600;font-size:13px;margin-bottom:5px">'+p.icon+' '+p.callsign+'</div><div style="font-size:11px;line-height:1.9;color:var(--t2)">Rola: '+p.roleLabel+'<br>'+lat.toFixed(5)+'° N, '+lng.toFixed(5)+'° E'+(acc>0?'<br>Dok.: ±'+acc+'m':'')+'</div></div>';
@@ -1300,6 +1390,14 @@ function connectToRoom(code){
     removeLocalShape(snap.key);
   });
 
+  // Listen for chat messages
+  fbDb.ref('rooms/'+code+'/chat').limitToLast(100).on('child_added',function(snap){
+    var d=snap.val();
+    if(!d)return;
+    renderChatMsg(d, d.peerId===myPeerId);
+  });
+  document.getElementById('chat-no-room').style.display='none';
+
   // Broadcast my position every 5s
   if(syncInterval)clearInterval(syncInterval);
   syncInterval=setInterval(broadcastPosition,5000);
@@ -1321,6 +1419,7 @@ function broadcastPosition(){
     markerStyle:profile.markerStyle||'circle',
     lat:myLat||null,
     lng:myLng||null,
+    hdg:compassHeading||0,
     ts:Date.now()
   });
 }
@@ -1335,13 +1434,14 @@ function updatePeerMarkers(){
     var p=connectedPeers[pid];
     if(!p.lat||!p.lng)return;
     var pProf={callsign:p.callsign||pid,icon:p.icon||'🪖',roleLabel:p.roleLabel||'—',markerStyle:p.markerStyle||'circle'};
-    var icon=makeOpIcon(pProf);
+    var pHdg=p.hdg||0;
+    var icon=makeOpIcon(pProf, pHdg);
     if(peerMarkers[pid]){
       peerMarkers[pid].setLatLng([p.lat,p.lng]);
       peerMarkers[pid].setIcon(icon);
     }else{
       var mk=L.marker([p.lat,p.lng],{icon:icon}).addTo(map);
-      mk.bindPopup('<div style="padding:3px 2px"><div style="font-weight:600;font-size:13px;margin-bottom:4px">'+p.icon+' '+p.callsign+'</div><div style="font-size:11px;line-height:1.8;color:var(--t2)">Rola: '+p.roleLabel+'<br>'+p.lat.toFixed(5)+'° N, '+p.lng.toFixed(5)+'° E<br><span style="color:var(--green)">● Połączony</span></div></div>');
+      mk.bindPopup('<div style="padding:3px 2px"><div style="font-weight:600;font-size:13px;margin-bottom:4px">'+p.icon+' '+p.callsign+'</div><div style="font-size:11px;line-height:1.8;color:var(--t2)">Rola: '+p.roleLabel+'<br>'+p.lat.toFixed(5)+'° N, '+p.lng.toFixed(5)+'° E<br>Kierunek: '+(Math.round(pHdg)||0)+'°<br><span style="color:var(--green)">● Połączony</span></div></div>');
       peerMarkers[pid]=mk;
     }
     // Sync to team panel
@@ -1384,6 +1484,7 @@ function disconnectSync(){
     fbDb.ref('rooms/'+currentRoom+'/peers/'+myPeerId).remove();
     fbDb.ref('rooms/'+currentRoom+'/peers').off();
     fbDb.ref('rooms/'+currentRoom+'/shapes').off();
+    fbDb.ref('rooms/'+currentRoom+'/chat').off();
   }
   if(syncInterval)clearInterval(syncInterval);
   currentRoom=null;connectedPeers={};
@@ -1576,6 +1677,7 @@ map.on('move rotate', function(){
   }
 });
 
+var _lastHdgBroadcast=0;
 function updateCompassUI(hdg){
   var needle = document.getElementById('compass-needle');
   var txt = document.getElementById('compass-hdg-text');
@@ -1586,8 +1688,15 @@ function updateCompassUI(hdg){
   if(panel && panel.classList.contains('visible')){
     document.getElementById('az-deg').textContent = Math.round(hdg).toString().padStart(3,'0') + '°';
     document.getElementById('az-cardinal').textContent = headingToCardinal(hdg) + ' (' + headingToMilitary(hdg) + ')';
-    var mag = (hdg + 5.2 + 360) % 360; // ~5.2° East declination for Poland
+    var mag = (hdg + 5.2 + 360) % 360;
     document.getElementById('az-mag').textContent = Math.round(mag).toString().padStart(3,'0') + '°';
+  }
+  // update own marker cone
+  if(locMark && myLat) locMark.setIcon(makeOpIcon(profile, hdg));
+  // broadcast heading change if significant (>5deg) and in room
+  if(currentRoom && Math.abs(hdg - _lastHdgBroadcast) > 5){
+    _lastHdgBroadcast = hdg;
+    broadcastPosition();
   }
 }
 
@@ -1750,6 +1859,108 @@ setInterval(function(){
 
 // init compass on load
 initCompass();
+
+/* ════════════════════════════════════════
+   CHAT SYSTEM
+   ════════════════════════════════════════ */
+
+var chatOpen = false;
+var chatUnreadCount = 0;
+var chatRenderedIds = {};
+
+function toggleChat(){
+  chatOpen = !chatOpen;
+  var panel = document.getElementById('chat-panel');
+  panel.classList.toggle('open', chatOpen);
+  if(chatOpen){
+    chatUnreadCount = 0;
+    updateChatBadge();
+    setTimeout(function(){
+      var msgs = document.getElementById('chat-msgs');
+      msgs.scrollTop = msgs.scrollHeight;
+      document.getElementById('chat-input').focus();
+    }, 60);
+  }
+}
+
+function updateChatBadge(){
+  var badge = document.getElementById('chat-badge');
+  if(chatUnreadCount > 0 && !chatOpen){
+    badge.textContent = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function sendChat(){
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
+  if(!text) return;
+  if(!currentRoom || !firebaseReady){
+    notify('Dołącz do pokoju synchronizacji aby pisać na czacie');
+    return;
+  }
+  var msg = {
+    peerId: myPeerId,
+    callsign: profile.callsign,
+    icon: profile.icon,
+    text: text,
+    ts: Date.now()
+  };
+  fbDb.ref('rooms/'+currentRoom+'/chat').push(msg);
+  input.value = '';
+  input.focus();
+}
+
+function renderChatMsg(d, isMine){
+  var key = d.ts + '_' + d.peerId;
+  if(chatRenderedIds[key]) return;
+  chatRenderedIds[key] = true;
+
+  var noRoom = document.getElementById('chat-no-room');
+  if(noRoom) noRoom.style.display = 'none';
+
+  var msgs = document.getElementById('chat-msgs');
+  var row = document.createElement('div');
+  row.className = 'msg-row ' + (isMine ? 'mine' : 'theirs');
+
+  var t = new Date(d.ts);
+  var timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+
+  row.innerHTML =
+    '<div class="msg-meta">' + (d.icon||'🪖') + ' <b>' + (d.callsign||'???') + '</b></div>' +
+    '<div class="msg-bubble">' + escapeHtml(d.text) + '</div>' +
+    '<div class="msg-time">' + timeStr + '</div>';
+
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  if(!isMine){
+    if(!chatOpen){
+      chatUnreadCount++;
+      updateChatBadge();
+    }
+    notify('💬 ' + (d.callsign||'???') + ': ' + d.text.slice(0,40) + (d.text.length>40?'…':''));
+  }
+}
+
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// close chat on Escape handled in existing keydown listener (will add below)
+document.getElementById('chat-input').addEventListener('keydown', function(e){
+  if(e.key==='Escape'){ toggleChat(); e.stopPropagation(); }
+});
+
+/* ════════════════════════════════════════
+   DIRECTION CONE — own marker auto-update
+   ════════════════════════════════════════ */
+// The cone is already embedded in makeOpIcon(p, hdg).
+// updateCompassUI calls locMark.setIcon(makeOpIcon(profile, hdg)) every time heading changes.
+// For peer cones, updatePeerMarkers re-renders icon with p.hdg every time Firebase peers update.
+// Nothing more needed here — fully reactive.
 
 /* ════════ MODALS HELPERS ════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open')}
